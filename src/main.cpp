@@ -7,7 +7,9 @@
 
 #include "macros.hpp"
 #include "Renderer.hpp"
+#include "SceneParser.hpp"
 #include <iostream>
+#include <stdexcept>
 
 int main(int argc, char **argv)
 {
@@ -20,9 +22,16 @@ int main(int argc, char **argv)
         std::cout << USAGE;
         return SUCCESS;
     }
-    RayTracer::Scene scene;
-    RayTracer::Camera camera;
-    RayTracer::Renderer renderer;
-    renderer.render(scene, camera, std::cout);
+    try {
+        RayTracer::Scene scene;
+        RayTracer::Camera camera;
+        RayTracer::SceneParser parser;
+        parser.parse(sceneFile, scene, camera);
+        RayTracer::Renderer renderer;
+        renderer.render(scene, camera, std::cout);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT;
+    }
     return SUCCESS;
 }
