@@ -1,11 +1,11 @@
 ##
 ## EPITECH PROJECT, 2026
-## project_name
+## Raytracer
 ## File description:
 ## Makefile
 ##
 
-NAME		=	
+NAME		=	raytracer
 
 CXX			=	clang++
 CXXFLAGS	=	-Wall -Wextra -std=c++20 -iquote ./include

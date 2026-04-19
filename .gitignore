@@ -1,4 +1,5 @@
 # Binaire
+raytracer
 
 # Fichiers objets
 obj/
@@ -7,10 +8,15 @@ obj/
 # Sujet et ressources
 ressources/
 
-# Fichiers générés par le programme
+# Fichiers generes par le programme
+*.ppm
+
+# Plugins compiles
+plugins/*.so
 
 # Librairies
 *.a
+*.so
 
 # Tests unitaires
 unit_tests
@@ -25,3 +31,4 @@ unit_tests
 *~
 *.swp
 .vscode/
+.cache/
