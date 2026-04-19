@@ -1,0 +1,27 @@
+# Binaire
+
+# Fichiers objets
+obj/
+*.o
+
+# Sujet et ressources
+ressources/
+
+# Fichiers générés par le programme
+
+# Librairies
+*.a
+
+# Tests unitaires
+unit_tests
+
+# Coverage
+*.gc*
+*.gcno
+*.gcda
+*.gcov
+
+# Fichiers temporaires
+*~
+*.swp
+.vscode/
