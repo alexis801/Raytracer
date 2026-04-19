@@ -10,6 +10,11 @@
 
 namespace RayTracer {
 
+Vector3D::Vector3D(double x, double y, double z)
+    : x(x), y(y), z(z)
+{
+}
+
 Vector3D Vector3D::operator+(const Vector3D &other) const
 {
     return {x + other.x, y + other.y, z + other.z};
