@@ -1,0 +1,53 @@
+@startuml C4_Component
+!include <C4/C4_Component>
+
+title Diagramme de Composants
+
+Container_Boundary(engine, "Moteur de rendu") {
+    Component(raycast, "Ray Caster", "C++", "Pour chaque pixel de l'image,\ncree un rayon depuis la camera\net le lance dans la scene.")
+
+    Component(intersection, "Calculateur d'intersections", "C++", "Teste si un rayon touche\nun objet. Trouve le point\nle plus proche.")
+
+    Component(shading, "Calculateur d'eclairage", "C++", "Calcule la couleur d'un point\nen fonction des lumieres,\nde l'ombre, et du materiau.")
+
+    Component(camera, "Camera", "C++", "Position, orientation,\nchamp de vision.\nGenere les rayons primaires.")
+}
+
+Container_Boundary(scenegraph, "Scene (Composite)") {
+    Component(iprimitive, "IPrimitive", "Interface C++", "Contrat pour toutes les formes 3D.\nhits(ray) -> point d'intersection")
+
+    Component(sphere, "Sphere", "Plugin .so", "Forme 3D : boule.\nCalcul d'intersection\navec un rayon via\nequation quadratique.")
+
+    Component(plane, "Plane", "Plugin .so", "Forme 3D : plan infini.\nCalcul d'intersection\nsimple.")
+
+    Component(cylinder, "Cylinder", "Plugin .so", "Forme 3D : tube.\nCalcul d'intersection\nvia equation quadratique\nmodifiee.")
+
+    Component(cone, "Cone", "Plugin .so", "Forme 3D : cone.\nCalcul d'intersection.")
+
+    Component(ilight, "ILight", "Interface C++", "Contrat pour les lumieres.\ngetIntensity(point) -> couleur")
+
+    Component(dirlight, "Directional Light", "C++", "Lumiere parallele\n(comme le soleil).")
+
+    Component(amblight, "Ambient Light", "C++", "Lumiere de base\npartout dans la scene.")
+}
+
+Container_Boundary(factory_sys, "Factory") {
+    Component(factory, "PrimitiveFactory", "C++", "Registre des types.\nCree les objets\na partir de leur nom.")
+}
+
+Rel(raycast, camera, "Demande un rayon pour chaque pixel")
+Rel(raycast, intersection, "Teste chaque rayon")
+Rel(intersection, iprimitive, "Appelle hits() sur chaque objet")
+Rel(raycast, shading, "Calcule la couleur du point touche")
+Rel(shading, ilight, "Interroge chaque lumiere")
+
+Rel(sphere, iprimitive, "implemente")
+Rel(plane, iprimitive, "implemente")
+Rel(cylinder, iprimitive, "implemente")
+Rel(cone, iprimitive, "implemente")
+Rel(dirlight, ilight, "implemente")
+Rel(amblight, ilight, "implemente")
+
+Rel(factory, iprimitive, "cree des instances de")
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml C4_Context
+!include <C4/C4_Context>
+
+title Diagramme de Contexte
+
+Person(user, "Utilisateur", "Ecrit un fichier de scene\net lance le programme\npour generer une image.")
+
+System(raytracer, "Raytracer", "Programme qui lit un fichier\nde scene et genere une image\nrealiste en simulant la lumiere.")
+
+System_Ext(filesystem, "Systeme de fichiers", "Stocke les fichiers de scene (.cfg)\net les images generees (.ppm)")
+
+Rel(user, raytracer, "Lance avec un fichier de scene", "./raytracer scene.cfg")
+Rel(raytracer, filesystem, "Lit le fichier de scene\nEcrit l'image generee", ".cfg / .ppm")
+Rel(user, filesystem, "Cree/edite les fichiers de scene", ".cfg")
+
+@enduml

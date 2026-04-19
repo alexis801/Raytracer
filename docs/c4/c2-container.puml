@@ -1,0 +1,38 @@
+@startuml C4_Container
+!include <C4/C4_Container>
+
+title Diagramme de Containers
+
+Person(user, "Utilisateur", "Lance le programme avec\nun fichier de scene.")
+
+System_Boundary(raytracer, "Raytracer") {
+    Container(main, "Programme principal", "C++ / Executable", "Point d'entree.\nParse les arguments.\nOrchestre le rendu.")
+
+    Container(parser, "Parseur de scene", "C++ / libconfig++", "Lit le fichier .cfg\net construit la scene\n(camera, objets, lumieres).")
+
+    Container(engine, "Moteur de rendu", "C++", "Lance les rayons,\ncalcule les intersections\net les couleurs de chaque pixel.")
+
+    Container(scene, "Scene", "C++", "Contient la camera,\nles objets 3D (arbre Composite)\net les lumieres.")
+
+    Container(output, "Sortie image", "C++", "Ecrit l'image finale\nau format PPM\nsur la sortie standard.")
+
+    Container(plugins, "Plugins", "C++ / .so", "Bibliotheques dynamiques\nqui ajoutent des formes 3D\net des lumieres.")
+
+    Container(pluginloader, "Chargeur de plugins", "C++ / libdl", "Scanne ./plugins/,\ncharge les .so,\nenregistre les types\ndans la Factory.")
+}
+
+System_Ext(fs, "Fichier de scene", ".cfg (libconfig)")
+System_Ext(img, "Image generee", ".ppm (Portable Pixmap)")
+
+Rel(user, main, "Lance", "./raytracer scene.cfg")
+Rel(main, parser, "Demande de parser le fichier")
+Rel(parser, fs, "Lit", "libconfig++")
+Rel(parser, scene, "Construit")
+Rel(main, pluginloader, "Charge les plugins au demarrage")
+Rel(pluginloader, plugins, "dlopen / dlsym")
+Rel(main, engine, "Lance le rendu")
+Rel(engine, scene, "Parcourt les objets\net lance les rayons")
+Rel(engine, output, "Envoie les pixels calcules")
+Rel(output, img, "Ecrit", "stdout > fichier.ppm")
+
+@enduml
