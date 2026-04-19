@@ -6,6 +6,7 @@
 */
 
 #include "macros.hpp"
+#include "Renderer.hpp"
 #include <iostream>
 
 int main(int argc, char **argv)
@@ -19,5 +20,9 @@ int main(int argc, char **argv)
         std::cout << USAGE;
         return SUCCESS;
     }
+    RayTracer::Scene scene;
+    RayTracer::Camera camera;
+    RayTracer::Renderer renderer;
+    renderer.render(scene, camera, std::cout);
     return SUCCESS;
 }
