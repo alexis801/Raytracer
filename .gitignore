@@ -11,6 +11,9 @@ ressources/
 # Fichiers generes par le programme
 *.ppm
 
+# Scenes de test
+scenes/
+
 # Plugins compiles
 plugins/*.so
 
@@ -26,6 +29,9 @@ unit_tests
 *.gcno
 *.gcda
 *.gcov
+
+# Build
+build/
 
 # Fichiers temporaires
 *~

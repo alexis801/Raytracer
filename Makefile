@@ -18,8 +18,10 @@ OBJ			=	$(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all:	$(NAME)
 
+LDFLAGS		=	-lconfig++
+
 $(NAME):	$(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
