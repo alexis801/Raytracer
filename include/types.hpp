@@ -37,6 +37,9 @@ public:
     Vector3D cross(const Vector3D &other) const;
     double length() const;
     Vector3D normalize() const;
+    Vector3D rotateX(double angle) const;
+    Vector3D rotateY(double angle) const;
+    Vector3D rotateZ(double angle) const;
 };
 
 /**

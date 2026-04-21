@@ -22,10 +22,14 @@ Ray Camera::generateRay(int x, int y) const
 {
     double aspect = static_cast<double>(_width) / _height;
     double scale = std::tan(DEG_TO_RAD(_fov / 2.0));
-    double px = (2.0 * (x + 0.5) / _width - 1.0) * aspect * scale;
-    double py = (1.0 - 2.0 * (y + 0.5) / _height) * scale;
-    Vector3D direction = Vector3D(px, py, 1.0).normalize();
-    return {_position, direction};
+    double screenX = (2.0 * (x + 0.5) / _width - 1.0)
+        * aspect * scale;
+    double screenY = (1.0 - 2.0 * (y + 0.5) / _height) * scale;
+    Vector3D direction(screenX, screenY, 1.0);
+    direction = direction.rotateX(DEG_TO_RAD(_rotation.x));
+    direction = direction.rotateY(DEG_TO_RAD(_rotation.y));
+    direction = direction.rotateZ(DEG_TO_RAD(_rotation.z));
+    return {_position, direction.normalize()};
 }
 
 int Camera::getWidth() const

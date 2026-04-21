@@ -62,4 +62,25 @@ Vector3D Vector3D::normalize() const
     return *this / len;
 }
 
+Vector3D Vector3D::rotateX(double angle) const
+{
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+    return {x, y * c - z * s, y * s + z * c};
+}
+
+Vector3D Vector3D::rotateY(double angle) const
+{
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+    return {x * c + z * s, y, -x * s + z * c};
+}
+
+Vector3D Vector3D::rotateZ(double angle) const
+{
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+    return {x * c - y * s, x * s + y * c, z};
+}
+
 } // namespace RayTracer
