@@ -10,6 +10,7 @@
 
 #include "Scene.hpp"
 #include "Camera.hpp"
+#include "Factory.hpp"
 #include <string>
 
 namespace libconfig {
@@ -24,7 +25,7 @@ namespace RayTracer {
  */
 class SceneParser {
 public:
-    SceneParser() = default;
+    SceneParser();
     ~SceneParser() = default;
 
     SceneParser(const SceneParser &other) = delete;
@@ -42,11 +43,15 @@ public:
         Camera &camera) const;
 
 private:
-    /**
-     * @brief Lit la camera depuis la config
-     * @param root root de la config
-     */
+    Factory<IPrimitive> _primitiveFactory;
+    Factory<ILight> _lightFactory;
+
+    void registerTypes();
     Camera parseCamera(const libconfig::Setting &root) const;
+    void parsePrimitives(const libconfig::Setting &prims,
+        Scene &scene) const;
+    void parseLights(const libconfig::Setting &root,
+        Scene &scene) const;
 };
 
 } // namespace RayTracer
