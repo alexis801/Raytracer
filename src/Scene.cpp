@@ -38,4 +38,24 @@ const std::vector<std::unique_ptr<ILight>> &Scene::getLights() const
     return _lights;
 }
 
+void Scene::setAmbient(double ambient)
+{
+    _ambient = ambient;
+}
+
+double Scene::getAmbient() const
+{
+    return _ambient;
+}
+
+void Scene::setDiffuse(double diffuse)
+{
+    _diffuse = diffuse;
+}
+
+double Scene::getDiffuse() const
+{
+    return _diffuse;
+}
+
 } // namespace RayTracer

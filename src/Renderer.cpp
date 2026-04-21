@@ -37,13 +37,13 @@ Color Renderer::computeColor(const Scene &scene,
 
     if (!hit)
         return {0, 0, 0};
-    double intensity = 0.0;
+    double intensity = scene.getAmbient();
     for (const auto &light : scene.getLights()) {
-        double lightIntensity = light->getIntensity(hit->point);
         Vector3D lightDir = light->getDirection(hit->point);
         double diffuse = std::max(0.0,
             hit->normal.dot(lightDir.normalize()));
-        intensity += lightIntensity * diffuse;
+        intensity += scene.getDiffuse()
+            * light->getIntensity(hit->point) * diffuse;
     }
     intensity = std::clamp(intensity, 0.0, 1.0);
     return {

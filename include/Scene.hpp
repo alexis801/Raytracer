@@ -52,9 +52,16 @@ public:
      */
     const std::vector<std::unique_ptr<ILight>> &getLights() const;
 
+    void setAmbient(double ambient);
+    double getAmbient() const;
+    void setDiffuse(double diffuse);
+    double getDiffuse() const;
+
 private:
     std::vector<std::unique_ptr<IPrimitive>> _primitives;
     std::vector<std::unique_ptr<ILight>> _lights;
+    double _ambient = 0.0;
+    double _diffuse = 1.0;
 };
 
 } // namespace RayTracer
