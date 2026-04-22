@@ -25,4 +25,9 @@ double PointLight::getIntensity(const Vector3D &point) const
     return _intensity;
 }
 
+double PointLight::getDistance(const Vector3D &point) const
+{
+    return (_position - point).length();
+}
+
 } // namespace RayTracer

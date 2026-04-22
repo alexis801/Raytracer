@@ -31,6 +31,12 @@ public:
      * @param point le point eclaire
      */
     virtual double getIntensity(const Vector3D &point) const = 0;
+
+    /**
+     * @brief Distance entre un point et la source de lumiere
+     * @param point le point eclaire
+     */
+    virtual double getDistance(const Vector3D &point) const = 0;
 };
 
 } // namespace RayTracer

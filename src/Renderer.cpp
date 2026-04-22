@@ -40,6 +40,14 @@ Color Renderer::computeColor(const Scene &scene,
     double intensity = scene.getAmbient();
     for (const auto &light : scene.getLights()) {
         Vector3D lightDir = light->getDirection(hit->point);
+        Ray shadowRay{
+            hit->point + hit->normal * EPSILON,
+            lightDir.normalize()
+        };
+        auto shadowHit = scene.getClosestHit(shadowRay);
+        if (shadowHit
+            && shadowHit->distance < light->getDistance(hit->point))
+            continue;
         double diffuse = std::max(0.0,
             hit->normal.dot(lightDir.normalize()));
         intensity += scene.getDiffuse()

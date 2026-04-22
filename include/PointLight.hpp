@@ -38,6 +38,12 @@ public:
      */
     double getIntensity(const Vector3D &point) const override;
 
+    /**
+     * @brief Distance entre un point et la lumiere
+     * @param point point eclaire
+     */
+    double getDistance(const Vector3D &point) const override;
+
 private:
     Vector3D _position;
     double _intensity;
