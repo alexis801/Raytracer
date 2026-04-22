@@ -42,7 +42,7 @@ TEST_SRC	=	$(shell find tests -name '*.cpp')
 SRC_NO_MAIN	=	$(filter-out src/main.cpp, $(SRC))
 
 tests_run:	$(NAME)
-	$(CXX) $(CXXFLAGS) -o unit_tests $(SRC_NO_MAIN) $(TEST_SRC) --coverage -lcriterion
+	$(CXX) $(CXXFLAGS) -o unit_tests $(SRC_NO_MAIN) $(TEST_SRC) --coverage -lcriterion $(LDFLAGS)
 	./unit_tests
 	gcovr -r . --exclude tests/ --gcov-executable "llvm-cov gcov"
 
