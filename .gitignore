@@ -8,11 +8,6 @@ obj/
 # Sujet et ressources
 ressources/
 
-# Fichiers generes par le programme
-*.ppm
-
-# Scenes de test
-scenes/
 
 # Plugins compiles
 plugins/*.so
