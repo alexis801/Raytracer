@@ -20,14 +20,19 @@ namespace RayTracer {
 
  class Cone : public IPrimitive {
     public:
+    Cone(const std::string &axis, const Vector3D apex, double angle, const Color color);
+    ~Cone() override = default;
+
+    // autoriser la copie et deplacement par défaut
+    Cone(const Cone &other) = default;
+    Cone &operator=(const Cone &other) = default;
+    Cone(Cone &&other) = default;
+    Cone &operator=(Cone &&other) = default;
+
     /**
      * @brief Test si le rayonn touche le cone
      * @param ray rayon a tester
      */
-
-    Cone(const std::string &axis, const Vector3D apex, double angle, const Color color);
-    ~Cone() override = default;
-
     std ::optional<HitRecord> hits(const Ray &ray) const override;
 
     private:
