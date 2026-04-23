@@ -9,6 +9,12 @@
 
 namespace RayTracer {
 
+Cone::Cone(const std::string &axis, Vector3D apex, double angle,
+    Color color) : _axis(axis), _apex(apex), _angle(angle), _color(color)
+{
+
+}
+
 std::optional<HitRecord> Cone::hits(const Ray &ray) const
 {
 
@@ -18,4 +24,4 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     return std::nullopt;
 }
 
-}// namespace RayTracer
+} // namespace RayTracer
