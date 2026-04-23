@@ -10,8 +10,11 @@
 #include "Plane.hpp"
 #include "DirectionalLight.hpp"
 #include "PointLight.hpp"
+#include "Cone.hpp"
+
 #include <libconfig.h++>
 #include <stdexcept>
+#include <iostream>
 
 namespace RayTracer {
 
@@ -28,12 +31,16 @@ void SceneParser::registerTypes()
     _primitiveFactory.registerType("plane",
         []() { return std::make_unique<Plane>(
             "Z", 0.0, Color{}); });
+    _primitiveFactory.registerType("cone",
+        []() { return std::make_unique<Cone>(
+            "Y", Vector3D(), 30.0, Color{}); });
     _lightFactory.registerType("directional",
         []() { return std::make_unique<DirectionalLight>(
             Vector3D(0, -1, 0), 1.0); });
     _lightFactory.registerType("point",
         []() { return std::make_unique<PointLight>(
             Vector3D(), 1.0); });
+      std::cerr << "registerTypes: cone registered in primitive factory\n";
 }
 
 Camera SceneParser::parseCamera(
