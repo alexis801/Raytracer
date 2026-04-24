@@ -7,10 +7,16 @@
 
 #include "Cylinder.hpp"
 
-Cylinder::Cylinder()
+
+namespace RayTracer {
+
+Cylinder::Cylinder(Vector3D center, double radius, Color color) 
 {
+
 }
 
 Cylinder::~Cylinder()
 {
+}
+
 }
