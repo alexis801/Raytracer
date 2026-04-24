@@ -10,7 +10,8 @@
 
 namespace RayTracer {
 
-Cylinder::Cylinder(Vector3D center, double radius, Color color) 
+Cylinder::Cylinder(Vector3D center, double radius, Color color)
+    : _center(center), _radius(radius), _color(color)
 {
 
 }
