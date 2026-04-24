@@ -16,8 +16,9 @@ Cylinder::Cylinder(Vector3D center, double radius, Color color)
 
 }
 
-Cylinder::~Cylinder()
+std::optional<HitRecord> Cylinder::hits(const Ray &ray) const
 {
+
 }
 
 }
