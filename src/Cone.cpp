@@ -5,6 +5,8 @@
 ** Cone.cpp
 */
 
+#include <iostream>
+
 #include "Cone.hpp"
 
 namespace RayTracer {
@@ -17,10 +19,19 @@ Cone::Cone(const std::string &axis, Vector3D apex, double angle,
 
 std::optional<HitRecord> Cone::hits(const Ray &ray) const
 {
+    // translate rayon = Cone a l'origine
+    // Centre du cone a 0 pour les claculs
+    Vector3D oc = ray.origin - _apex;
 
-    // Pour l'instant le cone touche jamais rayon
+    
+    // test affichage 1er pixel : debug
+    static bool first = true;
+    if (first) {
+        std::cerr << "Cone::hits oc=("
+            << oc.x << "," << oc.y << "," << oc.z << ") ray.dir=(" << ray.direction.x << "," << ray.direction.y << "," << ray.direction.z << ")\n";
+        first = false;
+    }
     // ajout calcul intersection ici
-    (void)ray;
     return std::nullopt;
 }
 
