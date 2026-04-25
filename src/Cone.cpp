@@ -44,10 +44,18 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
             ray.direction.y - k2 * ray.direction.z * ray.direction.z;
     }
 
+    double b = 0.0;
+
+    if (_axis == "Y") {
+        b = (oc.x * ray.direction.x + oc.z * ray.direction.z - k2 * oc.y * ray.direction.y);
+    } else if (_axis == "X") {
+    } else if (_axis == "Z") {
+    }
+
     // test affichage 1er pixel : debug
     static bool first = true;
     if (first) {
-        std::cerr << "cone::hits axis=" << _axis << " angle=" << _angle << " k=" << k << " a=" << a << "\n";
+        std::cerr << "cone::hits a=" << a << " b=" << b << "\n";
         first = false;
     }
     (void)oc;
