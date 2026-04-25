@@ -47,7 +47,7 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     double b = 0.0;
 
     if (_axis == "Y") {
-        b = (oc.x * ray.direction.x + oc.z * ray.direction.z - k2 * oc.y * ray.direction.y);
+        b = 2.0 * (oc.x * ray.direction.x + oc.z * ray.direction.z - k2 * oc.y * ray.direction.y);
     } else if (_axis == "X") {
     } else if (_axis == "Z") {
     }
