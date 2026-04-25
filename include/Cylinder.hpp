@@ -31,6 +31,7 @@ class Cylinder : public IPrimitive {
          * @brief Teste si un rayon touche la Cylinder
          * @param ray rayon a tester
          */
+        std::optional<double> Cylinder::quadratic(const Ray &ray) const;
         std::optional<HitRecord> hits(const Ray &ray) const override;
     
     private:
