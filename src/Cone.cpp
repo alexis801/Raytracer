@@ -6,8 +6,10 @@
 */
 
 #include <iostream>
+#include <cmath>
 
 #include "Cone.hpp"
+#include "macros.hpp"
 
 namespace RayTracer {
 
@@ -23,15 +25,25 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     // Centre du cone a 0 pour les claculs
     Vector3D oc = ray.origin - _apex;
 
-    
+    double k = std::tan(DEG_TO_RAD(_angle));
+    double k2 = k * k;
+    double a = 0.0;
+
+    if (_axis == "Y") {
+        a = ray.direction.x * ray.direction.x + ray.direction.z * ray.direction.z - k2 *  ray.direction.y * ray.direction.y;
+    } else if (_axis == "X") {
+        a = ray.direction.y * ray.direction.y + ray.direction.z * ray.direction.z - k2 * ray.direction.x * ray.direction.x;
+    } else if (_axis == "Z") {
+        a = ray.direction.x * ray.direction.x + ray.direction.y * ray.direction.y - k2 * ray.direction.z * ray.direction.z;
+    }
+
     // test affichage 1er pixel : debug
     static bool first = true;
     if (first) {
-        std::cerr << "Cone::hits oc=("
-            << oc.x << "," << oc.y << "," << oc.z << ") ray.dir=(" << ray.direction.x << "," << ray.direction.y << "," << ray.direction.z << ")\n";
+        std::cerr << "cone::hits axis=" << _axis << " angle=" << _angle << " k=" << k << " a=" << a << "\n";
         first = false;
     }
-    // ajout calcul intersection ici
+    (void)oc;
     return std::nullopt;
 }
 
