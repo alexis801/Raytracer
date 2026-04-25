@@ -25,16 +25,23 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     // Centre du cone a 0 pour les claculs
     Vector3D oc = ray.origin - _apex;
 
+    // k = tan (half angle ouverture)
+    // equation = x^2 = z^2 = k^2 * y^2 (axe y)
     double k = std::tan(DEG_TO_RAD(_angle));
     double k2 = k * k;
+    
+    //coefficient de l'equation addapter selon l'axe princ du cone
     double a = 0.0;
 
     if (_axis == "Y") {
-        a = ray.direction.x * ray.direction.x + ray.direction.z * ray.direction.z - k2 *  ray.direction.y * ray.direction.y;
+        a = ray.direction.x * ray.direction.x + ray.direction.z * 
+            ray.direction.z - k2 *  ray.direction.y * ray.direction.y;
     } else if (_axis == "X") {
-        a = ray.direction.y * ray.direction.y + ray.direction.z * ray.direction.z - k2 * ray.direction.x * ray.direction.x;
+        a = ray.direction.y * ray.direction.y + ray.direction.z * 
+            ray.direction.z - k2 * ray.direction.x * ray.direction.x;
     } else if (_axis == "Z") {
-        a = ray.direction.x * ray.direction.x + ray.direction.y * ray.direction.y - k2 * ray.direction.z * ray.direction.z;
+        a = ray.direction.x * ray.direction.x + ray.direction.y * 
+            ray.direction.y - k2 * ray.direction.z * ray.direction.z;
     }
 
     // test affichage 1er pixel : debug
