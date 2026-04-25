@@ -44,10 +44,11 @@ std::optional<double> Cylinder::quadratic(const Ray &ray) const
 std::optional<HitRecord> Cylinder::hits(const Ray &ray) const
 {
 
-    std::optional<double> t = quadratic(ray);
-    if (t == std::nullopt)
+    std::optional<double> tOptional = quadratic(ray);
+    if (tOptional == std::nullopt)
         return std::nullopt;
-    //Vector3D hitPoint = ray.origin + ray.direction * t;
+    double t = *tOptional;
+    Vector3D hitPoint = ray.origin + ray.direction * t;
 }
 
 }
