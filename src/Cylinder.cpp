@@ -47,8 +47,19 @@ std::optional<HitRecord> Cylinder::hits(const Ray &ray) const
     std::optional<double> tOptional = quadratic(ray);
     if (tOptional == std::nullopt)
         return std::nullopt;
+
     double t = *tOptional;
+
     Vector3D hitPoint = ray.origin + ray.direction * t;
+
+    Vector3D normal = Vector3D(hitPoint.x - _center.x, 0,
+    hitPoint.z - _center.z).normalize();
+
+    HitRecord rec;
+    rec.point = hitPoint;
+    rec.normal = normal;
+    rec.color = _color;
+    return rec;
 }
 
 }
