@@ -8,7 +8,6 @@ obj/
 # Sujet et ressources
 ressources/
 
-
 # Plugins compiles
 plugins/*.so
 
@@ -33,3 +32,6 @@ build/
 *.swp
 .vscode/
 .cache/
+
+# PPM generes
+/*.ppm

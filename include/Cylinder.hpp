@@ -28,10 +28,15 @@ class Cylinder : public IPrimitive {
         Cylinder &operator=(Cylinder &&other) = default;
     
         /**
-         * @brief Teste si un rayon touche la Cylinder
+         * @brief Calcule la distance d'intersection rayon/cylindre
          * @param ray rayon a tester
          */
-        std::optional<double> Cylinder::quadratic(const Ray &ray) const;
+        std::optional<double> quadratic(const Ray &ray) const;
+
+        /**
+         * @brief Teste si un rayon touche le cylindre
+         * @param ray rayon a tester
+         */
         std::optional<HitRecord> hits(const Ray &ray) const override;
     
     private:
