@@ -8,6 +8,7 @@
 #include "SceneParser.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
+#include "Cylinder.hpp"
 #include "DirectionalLight.hpp"
 #include "PointLight.hpp"
 #include "Cone.hpp"
@@ -39,6 +40,9 @@ void SceneParser::registerTypes()
             Vector3D(0, -1, 0), 1.0); });
     _lightFactory.registerType("point",
         []() { return std::make_unique<PointLight>(
+            Vector3D(), 1.0); });
+    _lightFactory.registerType("cylinder",
+        []() { return std::make_unique<Cylinder>(
             Vector3D(), 1.0); });
     std::cerr << "registerTypes: cone registered in primitive factory\n";
 }
