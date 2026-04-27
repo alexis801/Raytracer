@@ -76,6 +76,28 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
         return std::nullopt;
     }
 
+    // resoluition equation quadratic 2 solutions
+    // t1 t2 = 2 points ou le rayon traverse.
+    double sqrtDisc = std::sqrt(discriminant);
+    double t1 = (-b - sqrtDisc) / (2.0 * a);
+    double t2 = (-b + sqrtDisc) / (2.0 * a);
+    double t = t1;
+
+    // si t1 negatif on prend t2
+    if (t < EPSILON) {
+        t = t2;
+        if (t < EPSILON) {
+            return std::nullopt;
+        }
+    }
+
+    // point impact = origine + direction * t
+    Vector3D hitPoint = ray.origin + ray.direction * t;
+
+    Vector3D normal(0.0, 1.0, 0.0);
+
+    return HitRecord{hitPoint, normal, t, _color, 0.0};
+
     //affichage_debug pixel qui touche le cone;
     static int hits_count = 0;
     if (hits_count < 3) {
