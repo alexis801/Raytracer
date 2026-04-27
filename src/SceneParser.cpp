@@ -35,15 +35,15 @@ void SceneParser::registerTypes()
     _primitiveFactory.registerType("cone",
         []() { return std::make_unique<Cone>(
             "Y", Vector3D(), 30.0, Color{}); });
+    _primitiveFactory.registerType("cylinder",
+        []() { return std::make_unique<Cylinder>(
+            Vector3D(), 1.0, Color{}); });
     _lightFactory.registerType("directional",
         []() { return std::make_unique<DirectionalLight>(
             Vector3D(0, -1, 0), 1.0); });
     _lightFactory.registerType("point",
         []() { return std::make_unique<PointLight>(
             Vector3D(), 1.0); });
-    /*_lightFactory.registerType("cylinder",
-        []() { return std::make_unique<Cylinder>(
-            Vector3D(), 1.0); });*/
     std::cerr << "registerTypes: cone registered in primitive factory\n";
 }
 
@@ -113,8 +113,8 @@ void SceneParser::parsePrimitives(
                       << "," << apex.z << ") angle =" << angle << " colo r=(" << color.r << "," << color.g << "," << color.b << ")\n";
         }
     }
-    /*if (prims.exists("cylinder")) {
-        const auto &list = prims["cylinder"];
+    if (prims.exists("cylinders")) {
+        const auto &list = prims["cylinders"];
         for (int i = 0; i < list.getLength(); i++) {
             const auto &cylinder = list[i];
             const auto &col = cylinder["color"];
@@ -125,7 +125,7 @@ void SceneParser::parsePrimitives(
             scene.addPrimitive(
                 std::make_unique<Cylinder>(center, radius, color));
         }
-    }*/
+    }
 }
 
 void SceneParser::parseLights(
