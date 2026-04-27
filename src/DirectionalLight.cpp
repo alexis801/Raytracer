@@ -6,6 +6,7 @@
 */
 
 #include "DirectionalLight.hpp"
+#include <limits>
 
 namespace RayTracer {
 
@@ -27,6 +28,13 @@ double DirectionalLight::getIntensity(
 {
     (void)point;
     return _intensity;
+}
+
+double DirectionalLight::getDistance(
+    const Vector3D &point) const
+{
+    (void)point;
+    return std::numeric_limits<double>::infinity();
 }
 
 } // namespace RayTracer
