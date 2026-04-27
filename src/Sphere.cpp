@@ -11,8 +11,10 @@
 
 namespace RayTracer {
 
-Sphere::Sphere(Vector3D center, double radius, Color color)
-    : _center(center), _radius(radius), _color(color)
+Sphere::Sphere(Vector3D center, double radius, Color color,
+    double reflection)
+    : _center(center), _radius(radius), _color(color),
+    _reflection(reflection)
 {
 }
 
@@ -35,7 +37,7 @@ std::optional<HitRecord> Sphere::hits(const Ray &ray) const
     }
     Vector3D point = ray.origin + ray.direction * t;
     Vector3D normal = (point - _center).normalize();
-    return HitRecord{point, normal, t, _color};
+    return HitRecord{point, normal, t, _color, _reflection};
 }
 
 } // namespace RayTracer
