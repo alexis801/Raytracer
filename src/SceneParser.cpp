@@ -10,8 +10,11 @@
 #include "Plane.hpp"
 #include "DirectionalLight.hpp"
 #include "PointLight.hpp"
+#include "Cone.hpp"
+
 #include <libconfig.h++>
 #include <stdexcept>
+#include <iostream>
 
 namespace RayTracer {
 
@@ -28,12 +31,16 @@ void SceneParser::registerTypes()
     _primitiveFactory.registerType("plane",
         []() { return std::make_unique<Plane>(
             "Z", 0.0, Color{}); });
+    _primitiveFactory.registerType("cone",
+        []() { return std::make_unique<Cone>(
+            "Y", Vector3D(), 30.0, Color{}); });
     _lightFactory.registerType("directional",
         []() { return std::make_unique<DirectionalLight>(
             Vector3D(0, -1, 0), 1.0); });
     _lightFactory.registerType("point",
         []() { return std::make_unique<PointLight>(
             Vector3D(), 1.0); });
+    std::cerr << "registerTypes: cone registered in primitive factory\n";
 }
 
 Camera SceneParser::parseCamera(
@@ -63,8 +70,12 @@ void SceneParser::parsePrimitives(
                 sphere["z"]);
             double radius = sphere["r"];
             Color color{col["r"], col["g"], col["b"]};
+            double refl = 0.0;
+            if (sphere.exists("reflection"))
+                refl = sphere["reflection"];
             scene.addPrimitive(
-                std::make_unique<Sphere>(center, radius, color));
+                std::make_unique<Sphere>(
+                    center, radius, color, refl));
         }
     }
     if (prims.exists("planes")) {
@@ -75,8 +86,27 @@ void SceneParser::parsePrimitives(
             std::string axis = plane["axis"];
             double position = plane["position"];
             Color color{col["r"], col["g"], col["b"]};
+            double refl = 0.0;
+            if (plane.exists("reflection"))
+                refl = plane["reflection"];
             scene.addPrimitive(
-                std::make_unique<Plane>(axis, position, color));
+                std::make_unique<Plane>(
+                    axis, position, color, refl));
+        }
+    }
+    if (prims.exists("cones")) {
+        const auto &list = prims["cones"];
+        for (int i = 0; i < list.getLength(); i++) {
+            const auto &cone = list[i];
+            const auto &col = cone["color"];
+            std::string axis = cone["axis"];
+            Vector3D apex(cone["x"], cone["y"], cone["z"]);
+            double angle = cone["angle"];
+            Color color{col["r"], col["g"], col["b"]};
+            scene.addPrimitive(
+                std::make_unique<Cone>(axis, apex, angle, color));
+            std::cerr << "parsed cone: axis =" << axis << " apex =(" << apex.x << "," << apex.y
+                      << "," << apex.z << ") angle =" << angle << " colo r=(" << color.r << "," << color.g << "," << color.b << ")\n";
         }
     }
 }

@@ -42,8 +42,18 @@ private:
      * @brief Calcule la couleur d'un rayon
      * @param scene scene a tester
      * @param ray rayon lance
+     * @param depth profondeur de recursion
      */
-    Color computeColor(const Scene &scene, const Ray &ray) const;
+    Color computeColor(const Scene &scene, const Ray &ray,
+        int depth = 0) const;
+
+    /**
+     * @brief Calcule la couleur de surface sans reflexion
+     * @param scene scene a tester
+     * @param hit point d'intersection
+     */
+    Color computeSurface(const Scene &scene,
+        const HitRecord &hit) const;
 };
 
 } // namespace RayTracer

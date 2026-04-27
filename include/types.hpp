@@ -67,6 +67,7 @@ struct HitRecord {
     Vector3D normal;
     double distance = 0;
     Color color;
+    double reflection = 0.0;
 };
 
 } // namespace RayTracer
