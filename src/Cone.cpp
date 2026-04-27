@@ -5,7 +5,6 @@
 ** Cone.cpp
 */
 
-#include <iostream>
 #include <cmath>
 
 #include "Cone.hpp"
@@ -90,12 +89,21 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
             return std::nullopt;
         }
     }
-
     // point impact = origine + direction * t
     Vector3D hitPoint = ray.origin + ray.direction * t;
 
+
+    // Normale surface Cone, Normale = gradient de l'equation. axe principale et les 2 autres axes = coordonnee locale.
+    Vector3D local = hitPoint - _apex;
     Vector3D normal(0.0, 1.0, 0.0);
 
+    if (_axis == "Y") {
+        normal = Vector3D(local.x, -k2 * local.y, local.z).normalize();
+    } else if (_axis == "X") {
+        normal = Vector3D(-k2 * local.x, local.y, local.z).normalize();
+    } else if (_axis == "Z") {
+        normal = Vector3D(local.x, local.y, -k2 * local.z).normalize();
+    }
     return HitRecord{hitPoint, normal, t, _color, 0.0};
 }
 
