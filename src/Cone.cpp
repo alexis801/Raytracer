@@ -97,16 +97,6 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     Vector3D normal(0.0, 1.0, 0.0);
 
     return HitRecord{hitPoint, normal, t, _color, 0.0};
-
-    //affichage_debug pixel qui touche le cone;
-    static int hits_count = 0;
-    if (hits_count < 3) {
-        std::cerr << "[DEBUG] Cone::hits HIT detected!"
-                  << " a=" << a << " b=" << b << " c=" << c
-                  << " discriminant=" << discriminant << "\n";
-        hits_count++;
-    }
-    return std::nullopt;
 }
 
 } // namespace RayTracer
