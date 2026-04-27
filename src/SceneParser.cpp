@@ -113,6 +113,19 @@ void SceneParser::parsePrimitives(
                       << "," << apex.z << ") angle =" << angle << " colo r=(" << color.r << "," << color.g << "," << color.b << ")\n";
         }
     }
+    if (prims.exists("cylinder")) {
+        const auto &list = prims["cylinder"];
+        for (int i = 0; i < list.getLength(); i++) {
+            const auto &cylinder = list[i];
+            const auto &col = cylinder["color"];
+            Vector3D center(cylinder["x"], cylinder["y"],
+                cylinder["z"]);
+            double radius = cylinder["r"];
+            Color color{col["r"], col["g"], col["b"]};
+            scene.addPrimitive(
+                std::make_unique<Cylinder>(center, radius, color));
+        }
+    }
 }
 
 void SceneParser::parseLights(
