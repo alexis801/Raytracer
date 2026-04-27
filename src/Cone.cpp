@@ -29,36 +29,61 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     // equation = x^2 = z^2 = k^2 * y^2 (axe y)
     double k = std::tan(DEG_TO_RAD(_angle));
     double k2 = k * k;
-    
-    //coefficient de l'equation addapter selon l'axe princ du cone
+
+    //coefficient a de l'equation addapter selon l'axe princ du cone
     double a = 0.0;
 
     if (_axis == "Y") {
-        a = ray.direction.x * ray.direction.x + ray.direction.z * 
+        a = ray.direction.x * ray.direction.x + ray.direction.z *
             ray.direction.z - k2 *  ray.direction.y * ray.direction.y;
     } else if (_axis == "X") {
-        a = ray.direction.y * ray.direction.y + ray.direction.z * 
+        a = ray.direction.y * ray.direction.y + ray.direction.z *
             ray.direction.z - k2 * ray.direction.x * ray.direction.x;
     } else if (_axis == "Z") {
-        a = ray.direction.x * ray.direction.x + ray.direction.y * 
+        a = ray.direction.x * ray.direction.x + ray.direction.y *
             ray.direction.y - k2 * ray.direction.z * ray.direction.z;
     }
 
+    //coefficient b de l'equation = croisement entre origine & direction
     double b = 0.0;
 
     if (_axis == "Y") {
-        b = 2.0 * (oc.x * ray.direction.x + oc.z * ray.direction.z - k2 * oc.y * ray.direction.y);
+        b = 2.0 * (oc.x * ray.direction.x + oc.z *
+            ray.direction.z - k2 * oc.y * ray.direction.y);
     } else if (_axis == "X") {
+        b = 2.0 * (oc.y * ray.direction.y + oc.z *
+            ray.direction.z - k2 * oc.x * ray.direction.x);
     } else if (_axis == "Z") {
+        b = 2.0 * (oc.x * ray.direction.x + oc.y *
+            ray.direction.y - k2 * oc.z * ray.direction.z);
     }
 
-    // test affichage 1er pixel : debug
-    static bool first = true;
-    if (first) {
-        std::cerr << "cone::hits a=" << a << " b=" << b << "\n";
-        first = false;
+    //coefficient c de l'equation = depend de l'oirigine du rayon (apex)
+    double c = 0.0;
+
+    if (_axis == "Y") {
+        c = oc.x * oc.x + oc.z * oc.z - k2 * oc.y * oc.y;
+    } else if (_axis == "X") {
+        c = oc.y * oc.y + oc.z * oc.z - k2 * oc.x * oc.x;
+    } else if (_axis == "Z") {
+        c = oc.x * oc.x + oc.y * oc.y - k2 * oc.z * oc.z;
     }
-    (void)oc;
+    // discriminant de l'equation du second degre
+    double discriminant = b * b - 4.0 * a * c;
+
+    // pas d'intersection
+    if (discriminant < 0) {
+        return std::nullopt;
+    }
+
+    //affichage_debug pixel qui touche le cone;
+    static int hits_count = 0;
+    if (hits_count < 3) {
+        std::cerr << "[DEBUG] Cone::hits HIT detected!"
+                  << " a=" << a << " b=" << b << " c=" << c
+                  << " discriminant=" << discriminant << "\n";
+        hits_count++;
+    }
     return std::nullopt;
 }
 
