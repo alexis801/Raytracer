@@ -9,25 +9,20 @@
 
 namespace RayTracer {
 
-SceneNode::SceneNode()
+
+void GroupNode::addChild(std::unique_ptr<IPrimitive> child)
 {
+    _children.push_back(std::move(child));
 }
 
-SceneNode::~SceneNode()
-{
-}
-
-void SceneNode::addChild(std::unique_ptr<IPrimitive> child)
-{
-    _children.push_back(child);
-}
-
-std::optional<HitRecord> SceneNode::hits(const Ray &ray) const
+std::optional<HitRecord> GroupNode::hits(const Ray &ray) const
 {
     std::optional<HitRecord> closest;
 
     for (const auto &child : _children) {
         auto hit = child->hits(ray);
+         if (!hit)
+            continue;
         if (hit && (!closest || hit->distance < closest->distance))
             closest = hit;
     }

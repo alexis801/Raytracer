@@ -16,22 +16,27 @@
 
 namespace RayTracer {
 
-class SceneNode : public IPrimitive {
-public:
-    SceneNode() = default;
-    ~SceneNode() = default;
+class PrimitiveNode : public IPrimitive {
+    public:
+        PrimitiveNode(std::unique_ptr<IPrimitive> primitive)
+            : _primitive(std::move(primitive)) {}
 
-    SceneNode(const SceneNode &other) = delete;
-    SceneNode &operator=(const SceneNode &other) = delete;
-    SceneNode(SceneNode &&other) = default;
-    SceneNode &operator=(SceneNode &&other) = default;
+        std::optional<HitRecord> hits(const Ray &ray) const override {
+            return _primitive->hits(ray);
+        }
 
-    void addChild(std::unique_ptr<IPrimitive> child);
+    private:
+        std::unique_ptr<IPrimitive> _primitive;
+};
 
-    std::optional<HitRecord> hits(const Ray &ray) const override;
+class GroupNode : public IPrimitive {
+    public:
+        void addChild(std::unique_ptr<IPrimitive> child);
 
-private:
-    std::vector<std::unique_ptr<IPrimitive>> _primitives;
+        std::optional<HitRecord> hits(const Ray &ray) const override;
+
+    private:
+        std::vector<std::unique_ptr<IPrimitive>> _children;
 };
 
 }
