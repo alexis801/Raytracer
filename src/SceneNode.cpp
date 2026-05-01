@@ -10,16 +10,16 @@
 namespace RayTracer {
 
 
-void GroupNode::addChild(std::unique_ptr<IPrimitive> child)
+void GroupNode::addComponent(std::unique_ptr<IPrimitive> child)
 {
-    _children.push_back(std::move(child));
+    _components.push_back(std::move(child));
 }
 
 std::optional<HitRecord> GroupNode::hits(const Ray &ray) const
 {
     std::optional<HitRecord> closest;
 
-    for (const auto &child : _children) {
+    for (const auto &child : _components) {
         auto hit = child->hits(ray);
          if (!hit)
             continue;
