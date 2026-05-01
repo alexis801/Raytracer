@@ -19,7 +19,8 @@ namespace RayTracer {
 class Sphere : public IPrimitive {
 public:
     Sphere(Vector3D center, double radius, Color color,
-        double reflection = 0.0);
+        double reflection = 0.0, double transparency = 0.0,
+        double refraction = 1.0);
     ~Sphere() override = default;
 
     Sphere(const Sphere &other) = default;
@@ -38,6 +39,8 @@ private:
     double _radius;
     Color _color;
     double _reflection;
+    double _transparency;
+    double _refraction;
 };
 
 } // namespace RayTracer

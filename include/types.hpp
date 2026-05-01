@@ -68,6 +68,8 @@ struct HitRecord {
     double distance = 0;
     Color color;
     double reflection = 0.0;
+    double transparency = 0.0;
+    double refraction = 1.0;
 };
 
 } // namespace RayTracer
