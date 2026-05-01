@@ -20,7 +20,8 @@ namespace RayTracer {
 class Plane : public IPrimitive {
 public:
     Plane(const std::string &axis, double position, Color color,
-        double reflection = 0.0);
+        double reflection = 0.0, double transparency = 0.0,
+        double refraction = 1.0);
     ~Plane() override = default;
 
     Plane(const Plane &other) = default;
@@ -39,6 +40,8 @@ private:
     double _position;
     Color _color;
     double _reflection;
+    double _transparency;
+    double _refraction;
 };
 
 } // namespace RayTracer

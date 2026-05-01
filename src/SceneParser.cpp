@@ -73,11 +73,18 @@ void SceneParser::parsePrimitives(
             double radius = sphere["r"];
             Color color{col["r"], col["g"], col["b"]};
             double refl = 0.0;
+            double transp = 0.0;
+            double refr = 1.0;
             if (sphere.exists("reflection"))
                 refl = sphere["reflection"];
+            if (sphere.exists("transparency"))
+                transp = sphere["transparency"];
+            if (sphere.exists("refraction"))
+                refr = sphere["refraction"];
             scene.addPrimitive(
                 std::make_unique<Sphere>(
-                    center, radius, color, refl));
+                    center, radius, color,
+                    refl, transp, refr));
         }
     }
     if (prims.exists("planes")) {
@@ -89,11 +96,18 @@ void SceneParser::parsePrimitives(
             double position = plane["position"];
             Color color{col["r"], col["g"], col["b"]};
             double refl = 0.0;
+            double transp = 0.0;
+            double refr = 1.0;
             if (plane.exists("reflection"))
                 refl = plane["reflection"];
+            if (plane.exists("transparency"))
+                transp = plane["transparency"];
+            if (plane.exists("refraction"))
+                refr = plane["refraction"];
             scene.addPrimitive(
                 std::make_unique<Plane>(
-                    axis, position, color, refl));
+                    axis, position, color,
+                    refl, transp, refr));
         }
     }
     if (prims.exists("cones")) {
