@@ -31,12 +31,12 @@ class PrimitiveNode : public IPrimitive {
 
 class GroupNode : public IPrimitive {
     public:
-        void addChild(std::unique_ptr<IPrimitive> child);
+        void addComponent(std::unique_ptr<IPrimitive> child);
 
         std::optional<HitRecord> hits(const Ray &ray) const override;
 
     private:
-        std::vector<std::unique_ptr<IPrimitive>> _children;
+        std::vector<std::unique_ptr<IPrimitive>> _components;
 };
 
 }
