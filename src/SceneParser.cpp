@@ -23,49 +23,67 @@ SceneParser::SceneParser()
     registerTypes();
 }
 
+static void parseMaterial(const libconfig::Setting &cfg,
+    double &refl, double &transp, double &refr)
+{
+    refl = cfg.exists("reflection") ? (double)cfg["reflection"] : 0.0;
+    transp = cfg.exists("transparency") ? (double)cfg["transparency"] : 0.0;
+    refr = cfg.exists("refraction") ? (double)cfg["refraction"] : 1.0;
+}
+
 void SceneParser::registerTypes()
 {
     _primitiveFactory.registerType("sphere",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+        [](const libconfig::Setting &cfg) {
             const auto &col = cfg["color"];
+            double r, t, i;
+            parseMaterial(cfg, r, t, i);
             return std::make_unique<Sphere>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["r"],
-                Color{col["r"], col["g"], col["b"]}
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
+                (double)cfg["r"],
+                Color{col["r"], col["g"], col["b"]}, r, t, i
             );
         });
     _primitiveFactory.registerType("plane",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+        [](const libconfig::Setting &cfg) {
             const auto &col = cfg["color"];
-            return std::make_unique<Plane>(
-                cfg["axis"], cfg["position"],
+            double r, t, i;
+            parseMaterial(cfg, r, t, i);
+            return std::make_unique<Plane>( cfg["axis"],
+                (double)cfg["position"],
+                Color{col["r"], col["g"], col["b"]}, r, t, i
+            );
+        });
+
+    _primitiveFactory.registerType("cone",
+        [](const libconfig::Setting &cfg) {
+            const auto &col = cfg["color"];
+            return std::make_unique<Cone>(
+                cfg["axis"],
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
+                (double)cfg["angle"],
                 Color{col["r"], col["g"], col["b"]}
             );
         });
-    _primitiveFactory.registerType("cone",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+    _primitiveFactory.registerType("cylinder",
+        [](const libconfig::Setting &cfg) {
             const auto &col = cfg["color"];
-            return std::make_unique<Cone>( cfg["axis"],
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["angle"],
+            return std::make_unique<Cylinder>(
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
+                (double)cfg["r"],
                 Color{col["r"], col["g"], col["b"]}
             );
         });
 
-    _primitiveFactory.registerType("cylinder",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
-            const auto &col = cfg["color"];
-            return std::make_unique<Cylinder>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["r"],
-                Color{col["r"], col["g"], col["b"]}
-            );
-        });
     _lightFactory.registerType("directional",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<ILight> {
+        [](const libconfig::Setting &cfg) {
             return std::make_unique<DirectionalLight>(
                 Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
             );
         });
+
     _lightFactory.registerType("point",
-        [](const libconfig::Setting &cfg) -> std::unique_ptr<ILight> {
+        [](const libconfig::Setting &cfg) {
             return std::make_unique<PointLight>(
                 Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
             );
