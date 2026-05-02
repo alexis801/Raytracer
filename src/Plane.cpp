@@ -11,9 +11,11 @@
 namespace RayTracer {
 
 Plane::Plane(const std::string &axis, double position,
-    Color color, double reflection)
+    Color color, double reflection, double transparency,
+    double refraction)
     : _axis(axis), _position(position), _color(color),
-    _reflection(reflection)
+    _reflection(reflection), _transparency(transparency),
+    _refraction(refraction)
 {
 }
 
@@ -42,7 +44,8 @@ std::optional<HitRecord> Plane::hits(const Ray &ray) const
     if (t < EPSILON)
         return std::nullopt;
     Vector3D point = ray.origin + ray.direction * t;
-    return HitRecord{point, normal, t, _color, _reflection};
+    return HitRecord{point, normal, t, _color,
+        _reflection, _transparency, _refraction};
 }
 
 } // namespace RayTracer
