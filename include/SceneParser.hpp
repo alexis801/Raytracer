@@ -41,6 +41,8 @@ public:
      */
     void parse(const std::string &filepath, Scene &scene,
         Camera &camera) const;
+    
+    std::unique_ptr<IPrimitive> createNode(const libconfig::Setting &cfg) const;
 
 private:
     Factory<IPrimitive> _primitiveFactory;
