@@ -2,19 +2,43 @@
 ** EPITECH PROJECT, 2026
 ** raytracer
 ** File description:
-** SceneNode
+** SceneNodeNode
 */
 
-#ifndef SCENENODE_HPP_
-#define SCENENODE_HPP_
+#ifndef SceneNodeNODE_HPP_
+#define SceneNodeNODE_HPP_
 
-class SceneNode {
+#include "IPrimitive.hpp"
+#include "ILight.hpp"
+#include <memory>
+#include <map>
+#include <vector>
+
+namespace RayTracer {
+
+class PrimitiveNode : public IPrimitive {
     public:
-        SceneNode();
-        ~SceneNode();
+        PrimitiveNode(std::unique_ptr<IPrimitive> primitive)
+            : _primitive(std::move(primitive)) {}
 
-    protected:
+        std::optional<HitRecord> hits(const Ray &ray) const override {
+            return _primitive->hits(ray);
+        }
+
     private:
+        std::unique_ptr<IPrimitive> _primitive;
 };
 
-#endif /* !SCENENODE_HPP_ */
+class GroupNode : public IPrimitive {
+    public:
+        void addComponent(std::unique_ptr<IPrimitive> child);
+
+        std::optional<HitRecord> hits(const Ray &ray) const override;
+
+    private:
+        std::vector<std::unique_ptr<IPrimitive>> _components;
+};
+
+}
+
+#endif /* !SceneNodeNODE_HPP_ */

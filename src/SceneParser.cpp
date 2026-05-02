@@ -26,23 +26,50 @@ SceneParser::SceneParser()
 void SceneParser::registerTypes()
 {
     _primitiveFactory.registerType("sphere",
-        []() { return std::make_unique<Sphere>(
-            Vector3D(), 1.0, Color{}); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+            const auto &col = cfg["color"];
+            return std::make_unique<Sphere>(
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["r"],
+                Color{col["r"], col["g"], col["b"]}
+            );
+        });
     _primitiveFactory.registerType("plane",
-        []() { return std::make_unique<Plane>(
-            "Z", 0.0, Color{}); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+            const auto &col = cfg["color"];
+            return std::make_unique<Plane>(
+                cfg["axis"], cfg["position"],
+                Color{col["r"], col["g"], col["b"]}
+            );
+        });
     _primitiveFactory.registerType("cone",
-        []() { return std::make_unique<Cone>(
-            "Y", Vector3D(), 30.0, Color{}); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+            const auto &col = cfg["color"];
+            return std::make_unique<Cone>( cfg["axis"],
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["angle"],
+                Color{col["r"], col["g"], col["b"]}
+            );
+        });
+
     _primitiveFactory.registerType("cylinder",
-        []() { return std::make_unique<Cylinder>(
-            Vector3D(), 1.0, Color{}); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<IPrimitive> {
+            const auto &col = cfg["color"];
+            return std::make_unique<Cylinder>(
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]), cfg["r"],
+                Color{col["r"], col["g"], col["b"]}
+            );
+        });
     _lightFactory.registerType("directional",
-        []() { return std::make_unique<DirectionalLight>(
-            Vector3D(0, -1, 0), 1.0); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<ILight> {
+            return std::make_unique<DirectionalLight>(
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
+            );
+        });
     _lightFactory.registerType("point",
-        []() { return std::make_unique<PointLight>(
-            Vector3D(), 1.0); });
+        [](const libconfig::Setting &cfg) -> std::unique_ptr<ILight> {
+            return std::make_unique<PointLight>(
+                Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
+            );
+        });
 }
 
 Camera SceneParser::parseCamera(
@@ -60,82 +87,39 @@ Camera SceneParser::parseCamera(
     return Camera(width, height, position, rotation, fov);
 }
 
-void SceneParser::parsePrimitives(
-    const libconfig::Setting &prims, Scene &scene) const
+void SceneParser::parsePrimitives(const libconfig::Setting &prims,
+    Scene &scene) const
 {
-    if (prims.exists("spheres")) {
-        const auto &list = prims["spheres"];
-        for (int i = 0; i < list.getLength(); i++) {
-            const auto &sphere = list[i];
-            const auto &col = sphere["color"];
-            Vector3D center(sphere["x"], sphere["y"],
-                sphere["z"]);
-            double radius = sphere["r"];
-            Color color{col["r"], col["g"], col["b"]};
-            double refl = 0.0;
-            double transp = 0.0;
-            double refr = 1.0;
-            if (sphere.exists("reflection"))
-                refl = sphere["reflection"];
-            if (sphere.exists("transparency"))
-                transp = sphere["transparency"];
-            if (sphere.exists("refraction"))
-                refr = sphere["refraction"];
-            scene.addPrimitive(
-                std::make_unique<Sphere>(
-                    center, radius, color,
-                    refl, transp, refr));
-        }
+    if (!prims.exists("objects"))
+        return;
+    const auto &list = prims["objects"];
+
+    for (int i = 0; i < list.getLength(); i++) {
+        scene.addPrimitive(
+            createNode(list[i])
+        );
     }
-    if (prims.exists("planes")) {
-        const auto &list = prims["planes"];
-        for (int i = 0; i < list.getLength(); i++) {
-            const auto &plane = list[i];
-            const auto &col = plane["color"];
-            std::string axis = plane["axis"];
-            double position = plane["position"];
-            Color color{col["r"], col["g"], col["b"]};
-            double refl = 0.0;
-            double transp = 0.0;
-            double refr = 1.0;
-            if (plane.exists("reflection"))
-                refl = plane["reflection"];
-            if (plane.exists("transparency"))
-                transp = plane["transparency"];
-            if (plane.exists("refraction"))
-                refr = plane["refraction"];
-            scene.addPrimitive(
-                std::make_unique<Plane>(
-                    axis, position, color,
-                    refl, transp, refr));
+}
+
+std::unique_ptr<IPrimitive> SceneParser::createNode(
+    const libconfig::Setting &cfg) const
+{
+    std::string type = cfg["type"];
+
+    if (type == "group") {
+        auto group = std::make_unique<GroupNode>();
+        if (cfg.exists("objects")) {
+            const auto &component = cfg["objects"];
+            for (int i = 0; i < component.getLength(); i++) {
+                group->addComponent(createNode(component[i]));
+            }
         }
+        return group;
     }
-    if (prims.exists("cones")) {
-        const auto &list = prims["cones"];
-        for (int i = 0; i < list.getLength(); i++) {
-            const auto &cone = list[i];
-            const auto &col = cone["color"];
-            std::string axis = cone["axis"];
-            Vector3D apex(cone["x"], cone["y"], cone["z"]);
-            double angle = cone["angle"];
-            Color color{col["r"], col["g"], col["b"]};
-            scene.addPrimitive(
-                std::make_unique<Cone>(axis, apex, angle, color));
-        }
-    }
-    if (prims.exists("cylinders")) {
-        const auto &list = prims["cylinders"];
-        for (int i = 0; i < list.getLength(); i++) {
-            const auto &cylinder = list[i];
-            const auto &col = cylinder["color"];
-            Vector3D center(cylinder["x"], cylinder["y"],
-                cylinder["z"]);
-            double radius = cylinder["r"];
-            Color color{col["r"], col["g"], col["b"]};
-            scene.addPrimitive(
-                std::make_unique<Cylinder>(center, radius, color));
-        }
-    }
+    auto primitive = _primitiveFactory.create(type, cfg);
+    if (!primitive)
+        throw std::runtime_error("primitive problem: " + type);
+    return std::make_unique<PrimitiveNode>(std::move(primitive));
 }
 
 void SceneParser::parseLights(

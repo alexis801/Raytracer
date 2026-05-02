@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <libconfig.h++>
 
 namespace RayTracer {
 
@@ -23,7 +24,7 @@ template <typename T>
 class Factory
 {
 public:
-    using Creator = std::function<std::unique_ptr<T>()>;
+    using Creator = std::function<std::unique_ptr<T>(const libconfig::Setting &)>;
 
     /**
      * @brief Enregistre un type dans la factory
@@ -39,12 +40,13 @@ public:
      * @brief Cree un objet par son nom
      * @param name nom du type
      */
-    std::unique_ptr<T> create(const std::string &name) const
+    std::unique_ptr<T> create(const std::string &name,
+                          const libconfig::Setting &cfg) const
     {
         auto it = _creators.find(name);
         if (it == _creators.end())
             return nullptr;
-        return it->second();
+        return it->second(cfg);
     }
 
     /**
