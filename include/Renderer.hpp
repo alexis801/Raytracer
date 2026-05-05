@@ -11,6 +11,7 @@
 #include "Scene.hpp"
 #include "Camera.hpp"
 #include <ostream>
+#include <thread>
 
 namespace RayTracer {
 
@@ -34,8 +35,10 @@ public:
      * @param camera point de vue
      * @param out flux de sortie
      */
-    void render(const Scene &scene, const Camera &camera,
-        std::ostream &out) const;
+    // void render(const Scene &scene, const Camera &camera,
+    //     std::ostream &out) const;
+    void render(const Scene &scene, const Camera &camera, std::ostream &out, 
+        int numThreads = std::thread::hardware_concurrency(), int antiAliasing = 2) const;
 
 private:
     /**
@@ -46,6 +49,10 @@ private:
      */
     Color computeColor(const Scene &scene, const Ray &ray,
         int depth = 0) const;
+
+    void renderPart(const Scene &scene, const Camera &camera, 
+                    std::vector<Color> &buffer, int startY, int endY, 
+                    int antiAliasing) const;
 
     /**
      * @brief Calcule la couleur de surface sans reflexion

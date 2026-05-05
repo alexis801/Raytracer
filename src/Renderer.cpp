@@ -12,21 +12,60 @@
 
 namespace RayTracer {
 
-void Renderer::render(const Scene &scene, const Camera &camera,
-    std::ostream &out) const
+void Renderer::render(const Scene &scene, const Camera &camera, std::ostream &out,
+    int numThreads, int antiAliasing) const
 {
-    int width = camera.getWidth();
-    int height = camera.getHeight();
+    int imageWidth = camera.getWidth();
+    int imageHeight = camera.getHeight();
 
-    out << PPM_MAGIC << "\n";
-    out << width << " " << height << "\n";
-    out << PPM_MAX_COLOR << "\n";
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            Ray ray = camera.generateRay(x, y);
-            Color color = computeColor(scene, ray, 0);
-            out << color.r << " " << color.g << " "
-                << color.b << "\n";
+    std::vector<Color> framebuffer(imageWidth * imageHeight);
+    std::vector<std::thread> threads;
+    if (numThreads <= 0)
+        numThreads = 1;
+    int rowsPerThread = imageHeight / numThreads;
+    for (int i = 0; i < numThreads; i++) {
+        int rowStart = i * rowsPerThread;
+        int rowEnd = (i == numThreads - 1) ? imageHeight : (i + 1) * rowsPerThread;
+        threads.emplace_back(&Renderer::renderPart, this, 
+            std::ref(scene), std::ref(camera), std::ref(framebuffer), rowStart, rowEnd, antiAliasing);
+    }
+    for (auto &t : threads) {
+        t.join();
+    }
+    out << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
+    for (const auto &pixel : framebuffer) {
+        out << pixel.r << " " << pixel.g << " " << pixel.b << "\n";
+    }
+}
+
+void Renderer::renderPart(const Scene &scene, const Camera &camera, 
+    std::vector<Color> &framebuffer, int rowStart, int rowEnd, int antiAliasing) const
+{
+    int imageWidth = camera.getWidth();
+    double Pixielsize = 1.0 / antiAliasing;
+
+    for (int y = rowStart; y < rowEnd; y++) {
+        for (int x = 0; x < imageWidth; x++) {
+            double totalRed = 0;
+            double totalGreen = 0;
+            double totalBlue = 0;
+            for (int sy = 0; sy < antiAliasing; sy++) {
+                for (int sx = 0; sx < antiAliasing; sx++) {
+                    double offsetX = x + (sx + 0.5) * Pixielsize;
+                    double offsetY = y + (sy + 0.5) * Pixielsize;
+                    Ray ray = camera.generateRay(offsetX, offsetY);
+                    Color subColor = computeColor(scene, ray, 0);
+                    totalRed += subColor.r;
+                    totalGreen += subColor.g;
+                    totalBlue += subColor.b;
+                }
+            }
+            int numSamples = antiAliasing * antiAliasing;
+            framebuffer[y * imageWidth + x] = {
+                static_cast<int>(totalRed / numSamples),
+                static_cast<int>(totalGreen / numSamples),
+                static_cast<int>(totalBlue / numSamples)
+            };
         }
     }
 }
