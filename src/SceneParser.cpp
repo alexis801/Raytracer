@@ -41,9 +41,9 @@ void SceneParser::registerTypes()
     _lightFactory.registerType("point",
         []() { return std::make_unique<PointLight>(
             Vector3D(), 1.0); });
-    _lightFactory.registerType("cylinder",
+    _primitiveFactory.registerType("cylinder",
         []() { return std::make_unique<Cylinder>(
-            Vector3D(), 1.0); });
+            Vector3D(), 1.0,Color(255, 0, 0)); });
     std::cerr << "registerTypes: cone registered in primitive factory\n";
 }
 
