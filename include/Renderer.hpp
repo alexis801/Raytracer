@@ -61,6 +61,28 @@ private:
      */
     Color computeSurface(const Scene &scene,
         const HitRecord &hit) const;
+
+    /**
+     * @brief Calcule la couleur reflechie
+     * @param scene scene a tester
+     * @param ray rayon incident
+     * @param hit point d'intersection
+     * @param depth profondeur de recursion
+     */
+    Color computeReflection(const Scene &scene,
+        const Ray &ray, const HitRecord &hit,
+        int depth) const;
+
+    /**
+     * @brief Calcule la couleur refractee
+     * @param scene scene a tester
+     * @param ray rayon incident
+     * @param hit point d'intersection
+     * @param depth profondeur de recursion
+     */
+    Color computeRefraction(const Scene &scene,
+        const Ray &ray, const HitRecord &hit,
+        int depth) const;
 };
 
 } // namespace RayTracer

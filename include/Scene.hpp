@@ -10,8 +10,10 @@
 
 #include "IPrimitive.hpp"
 #include "ILight.hpp"
+#include "SceneNode.hpp"
 #include <memory>
 #include <vector>
+#include <map>
 
 namespace RayTracer {
 
@@ -58,6 +60,7 @@ public:
     double getDiffuse() const;
 
 private:
+    std::map<std::string, std::unique_ptr<IPrimitive>> _objects;
     std::vector<std::unique_ptr<IPrimitive>> _primitives;
     std::vector<std::unique_ptr<ILight>> _lights;
     double _ambient = 0.0;
