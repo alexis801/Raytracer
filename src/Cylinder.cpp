@@ -6,6 +6,7 @@
 */
 
 #include "Cylinder.hpp"
+#include "Factory.hpp"
 
 #include <cmath>
 
@@ -62,4 +63,23 @@ std::optional<HitRecord> Cylinder::hits(const Ray &ray) const
     return rec;
 }
 
+} // namespace RayTracer
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerPrimitive(
+        RayTracer::Factory<RayTracer::IPrimitive> &factory)
+    {
+        factory.registerType("cylinder",
+            [](const libconfig::Setting &cfg) {
+            const auto &col = cfg["color"];
+            return std::make_unique<RayTracer::Cylinder>(
+                RayTracer::Vector3D(cfg["x"], cfg["y"],
+                    cfg["z"]),
+                (double)cfg["r"],
+                RayTracer::Color{col["r"], col["g"],
+                    col["b"]});
+        });
+    }
 }
+#endif

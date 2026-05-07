@@ -6,6 +6,7 @@
 */
 
 #include "PointLight.hpp"
+#include "Factory.hpp"
 
 namespace RayTracer {
 
@@ -31,3 +32,18 @@ double PointLight::getDistance(const Vector3D &point) const
 }
 
 } // namespace RayTracer
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerLight(
+        RayTracer::Factory<RayTracer::ILight> &factory)
+    {
+        factory.registerType("point",
+            [](const libconfig::Setting &cfg) {
+            return std::make_unique<RayTracer::PointLight>(
+                RayTracer::Vector3D(cfg["x"], cfg["y"],
+                    cfg["z"]), 1.0);
+        });
+    }
+}
+#endif

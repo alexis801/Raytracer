@@ -6,6 +6,7 @@
 */
 
 #include "Plane.hpp"
+#include "Factory.hpp"
 #include "macros.hpp"
 
 namespace RayTracer {
@@ -49,3 +50,34 @@ std::optional<HitRecord> Plane::hits(const Ray &ray) const
 }
 
 } // namespace RayTracer
+
+static void parseMaterial(const libconfig::Setting &cfg,
+    double &refl, double &transp, double &refr)
+{
+    refl = cfg.exists("reflection")
+        ? (double)cfg["reflection"] : 0.0;
+    transp = cfg.exists("transparency")
+        ? (double)cfg["transparency"] : 0.0;
+    refr = cfg.exists("refraction")
+        ? (double)cfg["refraction"] : 1.0;
+}
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerPrimitive(
+        RayTracer::Factory<RayTracer::IPrimitive> &factory)
+    {
+        factory.registerType("plane",
+            [](const libconfig::Setting &cfg) {
+            const auto &col = cfg["color"];
+            double r, t, i;
+            parseMaterial(cfg, r, t, i);
+            return std::make_unique<RayTracer::Plane>(
+                cfg["axis"],
+                (double)cfg["position"],
+                RayTracer::Color{col["r"], col["g"],
+                    col["b"]}, r, t, i);
+        });
+    }
+}
+#endif

@@ -8,6 +8,7 @@
 #include <cmath>
 
 #include "Cone.hpp"
+#include "Factory.hpp"
 #include "macros.hpp"
 
 namespace RayTracer {
@@ -96,3 +97,23 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
 }
 
 } // namespace RayTracer
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerPrimitive(
+        RayTracer::Factory<RayTracer::IPrimitive> &factory)
+    {
+        factory.registerType("cone",
+            [](const libconfig::Setting &cfg) {
+            const auto &col = cfg["color"];
+            return std::make_unique<RayTracer::Cone>(
+                cfg["axis"],
+                RayTracer::Vector3D(cfg["x"], cfg["y"],
+                    cfg["z"]),
+                (double)cfg["angle"],
+                RayTracer::Color{col["r"], col["g"],
+                    col["b"]});
+        });
+    }
+}
+#endif
