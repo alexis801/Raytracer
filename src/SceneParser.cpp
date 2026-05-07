@@ -6,12 +6,6 @@
 */
 
 #include "SceneParser.hpp"
-#include "Sphere.hpp"
-#include "Plane.hpp"
-#include "Cylinder.hpp"
-#include "DirectionalLight.hpp"
-#include "PointLight.hpp"
-#include "Cone.hpp"
 
 #include <libconfig.h++>
 #include <stdexcept>
@@ -20,74 +14,12 @@ namespace RayTracer {
 
 SceneParser::SceneParser()
 {
-    registerTypes();
+    loadPlugins();
 }
 
-static void parseMaterial(const libconfig::Setting &cfg,
-    double &refl, double &transp, double &refr)
+void SceneParser::loadPlugins()
 {
-    refl = cfg.exists("reflection") ? (double)cfg["reflection"] : 0.0;
-    transp = cfg.exists("transparency") ? (double)cfg["transparency"] : 0.0;
-    refr = cfg.exists("refraction") ? (double)cfg["refraction"] : 1.0;
-}
-
-void SceneParser::registerTypes()
-{
-    _primitiveFactory.registerType("sphere",
-        [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
-            double r, t, i;
-            parseMaterial(cfg, r, t, i);
-            return std::make_unique<Sphere>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
-                (double)cfg["r"],
-                Color{col["r"], col["g"], col["b"]}, r, t, i
-            );
-        });
-    _primitiveFactory.registerType("plane",
-        [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
-            double r, t, i;
-            parseMaterial(cfg, r, t, i);
-            return std::make_unique<Plane>( cfg["axis"],
-                (double)cfg["position"],
-                Color{col["r"], col["g"], col["b"]}, r, t, i
-            );
-        });
-
-    _primitiveFactory.registerType("cone",
-        [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
-            return std::make_unique<Cone>(
-                cfg["axis"],
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
-                (double)cfg["angle"],
-                Color{col["r"], col["g"], col["b"]}
-            );
-        });
-    _primitiveFactory.registerType("cylinder",
-        [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
-            return std::make_unique<Cylinder>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]),
-                (double)cfg["r"],
-                Color{col["r"], col["g"], col["b"]}
-            );
-        });
-
-    _lightFactory.registerType("directional",
-        [](const libconfig::Setting &cfg) {
-            return std::make_unique<DirectionalLight>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
-            );
-        });
-
-    _lightFactory.registerType("point",
-        [](const libconfig::Setting &cfg) {
-            return std::make_unique<PointLight>(
-                Vector3D(cfg["x"], cfg["y"], cfg["z"]), 1.0
-            );
-        });
+    _pluginManager.loadAll(_primitiveFactory, _lightFactory);
 }
 
 Camera SceneParser::parseCamera(
@@ -152,21 +84,15 @@ void SceneParser::parseLights(
         scene.setDiffuse(lights["diffuse"]);
     if (lights.exists("directional")) {
         const auto &dirs = lights["directional"];
-        for (int i = 0; i < dirs.getLength(); i++) {
-            Vector3D dir(dirs[i]["x"], dirs[i]["y"],
-                dirs[i]["z"]);
+        for (int i = 0; i < dirs.getLength(); i++)
             scene.addLight(
-                std::make_unique<DirectionalLight>(dir, 1.0));
-        }
+                _lightFactory.create("directional", dirs[i]));
     }
     if (lights.exists("point")) {
         const auto &pts = lights["point"];
-        for (int i = 0; i < pts.getLength(); i++) {
-            Vector3D pos(pts[i]["x"], pts[i]["y"],
-                pts[i]["z"]);
+        for (int i = 0; i < pts.getLength(); i++)
             scene.addLight(
-                std::make_unique<PointLight>(pos, 1.0));
-        }
+                _lightFactory.create("point", pts[i]));
     }
 }
 

@@ -23,9 +23,9 @@ int main(int argc, char **argv)
         return SUCCESS;
     }
     try {
+        RayTracer::SceneParser parser;
         RayTracer::Scene scene;
         RayTracer::Camera camera;
-        RayTracer::SceneParser parser;
         parser.parse(sceneFile, scene, camera);
         RayTracer::Renderer renderer;
         renderer.render(scene, camera, std::cout);
