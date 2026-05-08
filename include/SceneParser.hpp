@@ -11,6 +11,7 @@
 #include "Scene.hpp"
 #include "Camera.hpp"
 #include "Factory.hpp"
+#include "PluginManager.hpp"
 #include <string>
 
 namespace libconfig {
@@ -45,10 +46,11 @@ public:
     std::unique_ptr<IPrimitive> createNode(const libconfig::Setting &cfg) const;
 
 private:
+    PluginManager _pluginManager;
     Factory<IPrimitive> _primitiveFactory;
     Factory<ILight> _lightFactory;
 
-    void registerTypes();
+    void loadPlugins();
     Camera parseCamera(const libconfig::Setting &root) const;
     void parsePrimitives(const libconfig::Setting &prims,
         Scene &scene) const;

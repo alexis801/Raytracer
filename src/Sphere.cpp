@@ -6,6 +6,7 @@
 */
 
 #include "Sphere.hpp"
+#include "Factory.hpp"
 #include "macros.hpp"
 #include <cmath>
 
@@ -43,3 +44,35 @@ std::optional<HitRecord> Sphere::hits(const Ray &ray) const
 }
 
 } // namespace RayTracer
+
+static void parseMaterial(const libconfig::Setting &cfg,
+    double &refl, double &transp, double &refr)
+{
+    refl = cfg.exists("reflection")
+        ? (double)cfg["reflection"] : 0.0;
+    transp = cfg.exists("transparency")
+        ? (double)cfg["transparency"] : 0.0;
+    refr = cfg.exists("refraction")
+        ? (double)cfg["refraction"] : 1.0;
+}
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerPrimitive(
+        RayTracer::Factory<RayTracer::IPrimitive> &factory)
+    {
+        factory.registerType("sphere",
+            [](const libconfig::Setting &cfg) {
+            const auto &col = cfg["color"];
+            double r, t, i;
+            parseMaterial(cfg, r, t, i);
+            return std::make_unique<RayTracer::Sphere>(
+                RayTracer::Vector3D(cfg["x"], cfg["y"],
+                    cfg["z"]),
+                (double)cfg["r"],
+                RayTracer::Color{col["r"], col["g"],
+                    col["b"]}, r, t, i);
+        });
+    }
+}
+#endif

@@ -6,6 +6,7 @@
 */
 
 #include "DirectionalLight.hpp"
+#include "Factory.hpp"
 #include <limits>
 
 namespace RayTracer {
@@ -38,3 +39,18 @@ double DirectionalLight::getDistance(
 }
 
 } // namespace RayTracer
+
+#ifdef PLUGIN_BUILD
+extern "C" {
+    void registerLight(
+        RayTracer::Factory<RayTracer::ILight> &factory)
+    {
+        factory.registerType("directional",
+            [](const libconfig::Setting &cfg) {
+            return std::make_unique<RayTracer::DirectionalLight>(
+                RayTracer::Vector3D(cfg["x"], cfg["y"],
+                    cfg["z"]), 1.0);
+        });
+    }
+}
+#endif
