@@ -20,7 +20,8 @@ namespace RayTracer {
 
  class Cone : public IPrimitive {
 public:
-    Cone(const std::string &axis, const Vector3D apex, double angle, const Color color);
+    Cone(const std::string &axis, const Vector3D apex, double angle,
+        const Color color, double height = 0.0);
     ~Cone() override = default;
 
     // autoriser la copie et deplacement par défaut
@@ -54,10 +55,26 @@ private:
      */
     Vector3D ComputeNormal(const Vector3D &hitPoint, double k2) const;
 
+    /**
+     * @brief Verifie qu'un point d'impact est dans la hauteur
+     * @param point point d'impact
+     */
+    bool isInsideHeight(const Vector3D &point) const;
+
+    /**
+     * @brief Cherche le root valide le plus proche
+     * @param ray rayon
+     * @param t1 premier root
+     * @param t2 second root
+     */
+    double findClosestRoot(const Ray &ray, double t1,
+        double t2) const;
+
     std::string _axis; // axe symetrique du cone (x, y ou z)
     Vector3D _apex; // sommet du cone : pointe
     double _angle; // angle ouverture du cone en degrés
     Color _color; // couleur cone
+    double _height; // hauteur du cone (0 = infini)
 };
 
 } // namespace RayTracer

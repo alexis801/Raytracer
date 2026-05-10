@@ -14,7 +14,9 @@
 namespace RayTracer {
 
 Cone::Cone(const std::string &axis, Vector3D apex, double angle,
-    Color color) : _axis(axis), _apex(apex), _angle(angle), _color(color)
+    Color color, double height)
+    : _axis(axis), _apex(apex), _angle(angle), _color(color),
+      _height(height)
 {
 }
 
@@ -56,44 +58,55 @@ Vector3D Cone::ComputeNormal(const Vector3D &hitPoint, double k2) const
     return Vector3D(local.x, local.y, -k2 * local.z).normalize();
 }
 
+bool Cone::isInsideHeight(const Vector3D &point) const
+{
+    if (_height <= 0)
+        return true;
+    Vector3D local = point - _apex;
+    double axial = local.y;
+
+    if (_axis == "X")
+        axial = local.x;
+    else if (_axis == "Z")
+        axial = local.z;
+    return std::fabs(axial) <= _height;
+}
+
+double Cone::findClosestRoot(const Ray &ray, double t1,
+    double t2) const
+{
+    double t = -1.0;
+
+    for (double candidate : {t1, t2}) {
+        if (candidate < EPSILON)
+            continue;
+        if (!isInsideHeight(ray.origin + ray.direction * candidate))
+            continue;
+        if (t < 0 || candidate < t)
+            t = candidate;
+    }
+    return t;
+}
+
 std::optional<HitRecord> Cone::hits(const Ray &ray) const
 {
-    // k = tan (half angle ouverture)
-    // equation = x^2 + z^2 = k^2 * y^2 (axe y)
-    double k = std::tan(DEG_TO_RAD(_angle));
-    double k2 = k * k;
-
-    //calcul 3 coef de l'equation a*t^2 + b*t + c = 0
+    double tan = std::tan(DEG_TO_RAD(_angle));
+    double k2 = tan * tan;
     double a = 0.0;
     double b = 0.0;
     double c = 0.0;
     ComputeQuadraticCoefficients(ray, k2, a, b, c);
-
-
-    // discriminant de l'equation : si negatif le rayon touche pas
     double discriminant = b * b - 4.0 * a * c;
-    if (discriminant < 0) {
+    if (discriminant < 0)
         return std::nullopt;
-    }
-
-    // resoluition equation quadratic 2 racines = 2 point intersections
-    // garder le plus petit de t > EPSILON
     double sqrtDisc = std::sqrt(discriminant);
-    double t1 = (-b - sqrtDisc) / (2.0 * a);
-    double t2 = (-b + sqrtDisc) / (2.0 * a);
-    double t = t1;
-
-    if (t < EPSILON) {
-        t = t2;
-        if (t < EPSILON) {
-            return std::nullopt;
-        }
-    }
-
-    // Construction hitrecord avec point / normale / couleur
+    double t = findClosestRoot(ray, (-b - sqrtDisc) / (2.0 * a),
+        (-b + sqrtDisc) / (2.0 * a));
+    if (t < 0)
+        return std::nullopt;
     Vector3D hitPoint = ray.origin + ray.direction * t;
-    Vector3D normal = ComputeNormal(hitPoint, k2);
-    return HitRecord{hitPoint, normal, t, _color, 0.0};
+    return HitRecord{hitPoint, ComputeNormal(hitPoint, k2), t,
+        _color, 0.0};
 }
 
 } // namespace RayTracer
@@ -106,13 +119,16 @@ extern "C" {
         factory.registerType("cone",
             [](const libconfig::Setting &cfg) {
             const auto &col = cfg["color"];
+            double height = 0.0;
+            if (cfg.exists("height"))
+                height = (double)cfg["height"];
             return std::make_unique<RayTracer::Cone>(
                 cfg["axis"],
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
                     cfg["z"]),
                 (double)cfg["angle"],
                 RayTracer::Color{col["r"], col["g"],
-                    col["b"]});
+                    col["b"]}, height);
         });
     }
 }
