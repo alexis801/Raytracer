@@ -98,7 +98,7 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     // Construction hitrecord avec point / normale / couleur
     Vector3D hitPoint = ray.origin + ray.direction * t;
     Vector3D normal = ComputeNormal(hitPoint, k2);
-    return HitRecord{hitPoint, normal, t, _color, 0.0};
+    return HitRecord{hitPoint, normal, t, _color, _reflection, _transparency, _refraction};
 }
 
 } // namespace RayTracer
