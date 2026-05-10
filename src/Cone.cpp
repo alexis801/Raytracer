@@ -103,6 +103,14 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
 
 } // namespace RayTracer
 
+static void parseMaterial(const libconfig::Setting &cfg,
+    double &refl, double &transp, double &refr)
+{
+    refl = cfg.exists("reflection") ? (double)cfg["reflection"] : 0.0;
+    transp = cfg.exists("transparency") ? (double)cfg["transparency"] : 0.0;
+    refr = cfg.exists("refraction") ? (double)cfg["refraction"] : 1.0;
+}
+
 #ifdef PLUGIN_BUILD
 extern "C" {
     void registerPrimitive(
@@ -111,13 +119,18 @@ extern "C" {
         factory.registerType("cone",
             [](const libconfig::Setting &cfg) {
             const auto &col = cfg["color"];
+            double r;
+            double t;
+            double i;
+            parseMaterial(cfg, r, t, i);
             return std::make_unique<RayTracer::Cone>(
                 cfg["axis"],
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
                     cfg["z"]),
                 (double)cfg["angle"],
                 RayTracer::Color{col["r"], col["g"],
-                    col["b"]});
+                    col["b"]},
+                r, t, i);
         });
     }
 }
