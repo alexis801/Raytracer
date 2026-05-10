@@ -70,6 +70,8 @@ struct HitRecord {
     double reflection = 0.0;
     double transparency = 0.0;
     double refraction = 1.0;
+    double specular = 0.0;
+    double shininess = 0.0;
 };
 
 } // namespace RayTracer
