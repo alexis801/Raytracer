@@ -14,8 +14,13 @@
 namespace RayTracer {
 
 Cone::Cone(const std::string &axis, Vector3D apex, double angle,
-    Color color) : _axis(axis), _apex(apex), _angle(angle), _color(color)
+    Color color, double reflection, double transparency,
+    double refraction)
+    : _axis(axis), _apex(apex), _angle(angle), _color(color),
+    _reflection(reflection), _transparency(transparency),
+    _refraction(refraction)
 {
+
 }
 
 void Cone::ComputeQuadraticCoefficients(const Ray &ray, double k2, double &a, double &b, double &c) const
