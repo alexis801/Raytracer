@@ -37,6 +37,11 @@ public:
      * @param point le point eclaire
      */
     virtual double getDistance(const Vector3D &point) const = 0;
+
+    /**
+     * @brief Couleur de la lumiere
+     */
+    virtual Color getColor() const = 0;
 };
 
 } // namespace RayTracer

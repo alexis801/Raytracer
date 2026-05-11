@@ -10,8 +10,9 @@
 
 namespace RayTracer {
 
-PointLight::PointLight(Vector3D position, double intensity)
-    : _position(position), _intensity(intensity)
+PointLight::PointLight(Vector3D position, double intensity,
+    Color color)
+    : _position(position), _intensity(intensity), _color(color)
 {
 }
 
@@ -31,6 +32,11 @@ double PointLight::getDistance(const Vector3D &point) const
     return (_position - point).length();
 }
 
+Color PointLight::getColor() const
+{
+    return _color;
+}
+
 } // namespace RayTracer
 
 #ifdef PLUGIN_BUILD
@@ -40,9 +46,15 @@ extern "C" {
     {
         factory.registerType("point",
             [](const libconfig::Setting &cfg) {
+            RayTracer::Color color{255, 255, 255};
+            if (cfg.exists("color")) {
+                const auto &col = cfg["color"];
+                color = RayTracer::Color{col["r"], col["g"],
+                    col["b"]};
+            }
             return std::make_unique<RayTracer::PointLight>(
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
-                    cfg["z"]), 1.0);
+                    cfg["z"]), 1.0, color);
         });
     }
 }

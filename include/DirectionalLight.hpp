@@ -18,7 +18,8 @@ namespace RayTracer {
  */
 class DirectionalLight : public ILight {
 public:
-    DirectionalLight(Vector3D direction, double intensity);
+    DirectionalLight(Vector3D direction, double intensity,
+        Color color = {255, 255, 255});
     ~DirectionalLight() override = default;
 
     DirectionalLight(const DirectionalLight &other) = default;
@@ -44,9 +45,12 @@ public:
      */
     double getDistance(const Vector3D &point) const override;
 
+    Color getColor() const override;
+
 private:
     Vector3D _direction;
     double _intensity;
+    Color _color;
 };
 
 } // namespace RayTracer

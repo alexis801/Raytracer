@@ -135,30 +135,42 @@ Color Renderer::computeRefraction(const Scene &scene,
     return computeColor(scene, refractRay, depth + 1);
 }
 
+void Renderer::accumulateLight(const Scene &scene,
+    const ILight &light, const HitRecord &hit, double rgb[3]) const
+{
+    Vector3D lightDir = light.getDirection(hit.point);
+    Ray shadowRay{hit.point + hit.normal * EPSILON,
+        lightDir.normalize()};
+    auto shadowHit = scene.getClosestHit(shadowRay);
+
+    if (shadowHit
+        && shadowHit->distance < light.getDistance(hit.point))
+        return;
+    double diffuse = std::max(0.0,
+        hit.normal.dot(lightDir.normalize()));
+    double contrib = scene.getDiffuse()
+        * light.getIntensity(hit.point) * diffuse;
+    Color lc = light.getColor();
+    rgb[0] += contrib * (lc.r / 255.0);
+    rgb[1] += contrib * (lc.g / 255.0);
+    rgb[2] += contrib * (lc.b / 255.0);
+}
+
 Color Renderer::computeSurface(const Scene &scene,
     const HitRecord &hit) const
 {
-    double intensity = scene.getAmbient();
-    for (const auto &light : scene.getLights()) {
-        Vector3D lightDir = light->getDirection(hit.point);
-        Ray shadowRay{
-            hit.point + hit.normal * EPSILON,
-            lightDir.normalize()
-        };
-        auto shadowHit = scene.getClosestHit(shadowRay);
-        if (shadowHit
-            && shadowHit->distance < light->getDistance(hit.point))
-            continue;
-        double diffuse = std::max(0.0,
-            hit.normal.dot(lightDir.normalize()));
-        intensity += scene.getDiffuse()
-            * light->getIntensity(hit.point) * diffuse;
-    }
-    intensity = std::clamp(intensity, 0.0, 1.0);
+    double rgb[3] = {scene.getAmbient(), scene.getAmbient(),
+        scene.getAmbient()};
+
+    for (const auto &light : scene.getLights())
+        accumulateLight(scene, *light, hit, rgb);
     return {
-        static_cast<int>(hit.color.r * intensity),
-        static_cast<int>(hit.color.g * intensity),
-        static_cast<int>(hit.color.b * intensity)
+        static_cast<int>(hit.color.r
+            * std::clamp(rgb[0], 0.0, 1.0)),
+        static_cast<int>(hit.color.g
+            * std::clamp(rgb[1], 0.0, 1.0)),
+        static_cast<int>(hit.color.b
+            * std::clamp(rgb[2], 0.0, 1.0))
     };
 }
 
