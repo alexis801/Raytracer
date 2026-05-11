@@ -18,7 +18,8 @@ namespace RayTracer {
  */
 class PointLight : public ILight {
 public:
-    PointLight(Vector3D position, double intensity);
+    PointLight(Vector3D position, double intensity,
+        Color color = {255, 255, 255});
     ~PointLight() override = default;
 
     PointLight(const PointLight &other) = default;
@@ -44,9 +45,15 @@ public:
      */
     double getDistance(const Vector3D &point) const override;
 
+    /**
+     * @brief Couleur de la lumiere
+     */
+    Color getColor() const override;
+
 private:
     Vector3D _position;
     double _intensity;
+    Color _color;
 };
 
 } // namespace RayTracer

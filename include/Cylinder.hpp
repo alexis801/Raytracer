@@ -19,14 +19,15 @@ namespace RayTracer {
  */
 class Cylinder : public IPrimitive {
     public:
-        Cylinder(Vector3D center, double radius, Color color);
+        Cylinder(Vector3D center, double radius, Color color,
+            double height = 0.0);
         ~Cylinder() override = default;
-    
+
         Cylinder(const Cylinder &other) = default;
         Cylinder &operator=(const Cylinder &other) = default;
         Cylinder(Cylinder &&other) = default;
         Cylinder &operator=(Cylinder &&other) = default;
-    
+
         /**
          * @brief Calcule la distance d'intersection rayon/cylindre
          * @param ray rayon a tester
@@ -38,11 +39,19 @@ class Cylinder : public IPrimitive {
          * @param ray rayon a tester
          */
         std::optional<HitRecord> hits(const Ray &ray) const override;
-    
+
     private:
+        /**
+         * @brief Verifie qu'un t est valide (positif et dans la hauteur)
+         * @param ray rayon
+         * @param t parametre a tester
+         */
+        bool isValid(const Ray &ray, double t) const;
+
         Vector3D _center;
         double _radius;
         Color _color;
+        double _height;
 };
 
 } // namespace RayTracer

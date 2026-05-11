@@ -63,6 +63,16 @@ private:
         const HitRecord &hit) const;
 
     /**
+     * @brief Ajoute la contribution d'une lumiere aux canaux RGB
+     * @param scene scene a tester
+     * @param light lumiere a evaluer
+     * @param hit point d'intersection
+     * @param rgb tableau {r, g, b} a accumuler
+     */
+    void accumulateLight(const Scene &scene, const ILight &light,
+        const HitRecord &hit, double rgb[3]) const;
+
+    /**
      * @brief Calcule la couleur reflechie
      * @param scene scene a tester
      * @param ray rayon incident
