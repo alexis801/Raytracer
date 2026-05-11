@@ -14,13 +14,14 @@
 namespace RayTracer {
 
 Cone::Cone(const std::string &axis, Vector3D apex, double angle,
-    Color color, double height, double reflection, double transparency,
-    double refraction)
+    Color color, double height, double reflection,
+    double transparency, double refraction, double specular,
+    double shininess)
     : _axis(axis), _apex(apex), _angle(angle), _color(color),
-      _height(height), _reflection(reflection),
-      _transparency(transparency), _refraction(refraction)
+    _height(height), _reflection(reflection),
+    _transparency(transparency), _refraction(refraction),
+    _specular(specular), _shininess(shininess)
 {
-
 }
 
 void Cone::ComputeQuadraticCoefficients(const Ray &ray, double k2, double &a, double &b, double &c) const
@@ -109,17 +110,19 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
         return std::nullopt;
     Vector3D hitPoint = ray.origin + ray.direction * t;
     return HitRecord{hitPoint, ComputeNormal(hitPoint, k2), t,
-        _color, _reflection, _transparency, _refraction};
+        _color, _reflection, _transparency, _refraction, _specular, _shininess};
 }
 
 } // namespace RayTracer
 
 static void parseMaterial(const libconfig::Setting &cfg,
-    double &refl, double &transp, double &refr)
+    double &refl, double &transp, double &refr, double &spec, double &shin)
 {
     refl = cfg.exists("reflection") ? (double)cfg["reflection"] : 0.0;
     transp = cfg.exists("transparency") ? (double)cfg["transparency"] : 0.0;
     refr = cfg.exists("refraction") ? (double)cfg["refraction"] : 1.0;
+    spec = cfg.exists("specular") ? (double)cfg["specular"] : 0.0;
+    shin = cfg.exists("shininess") ? (double)cfg["shininess"] : 0.0;
 }
 
 #ifdef PLUGIN_BUILD
@@ -133,10 +136,8 @@ extern "C" {
             double height = 0.0;
             if (cfg.exists("height"))
                 height = (double)cfg["height"];
-            double r;
-            double t;
-            double i;
-            parseMaterial(cfg, r, t, i);
+            double r, t, i, spec, shin;
+            parseMaterial(cfg, r, t, i, spec, shin);
             return std::make_unique<RayTracer::Cone>(
                 cfg["axis"],
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
@@ -144,7 +145,7 @@ extern "C" {
                 (double)cfg["angle"],
                 RayTracer::Color{col["r"], col["g"],
                     col["b"]},
-                height, r, t, i);
+                height, r, t, i, spec, shin);
         });
     }
 }

@@ -20,10 +20,11 @@ namespace RayTracer {
 
  class Cone : public IPrimitive {
 public:
-    Cone(const std::string &axis, const Vector3D apex, double angle,
-        const Color color, double height = 0.0,
-        double reflection = 0.0, double transparency = 0.0,
-        double refraction = 1.0);
+Cone(const std::string &axis, const Vector3D apex, double angle,
+    const Color color, double height = 0.0,
+    double reflection = 0.0, double transparency = 0.0,
+    double refraction = 1.0, double specular = 0.0,
+    double shininess = 0.0);
     ~Cone() override = default;
 
     // autoriser la copie et deplacement par défaut
@@ -80,6 +81,8 @@ private:
     double _reflection; // coefficient de reflection du cone
     double _transparency; // coefficient de transparence du cone
     double _refraction; // indice de refraction du cone
+    double _specular; // coefficient de specularité du cone
+    double _shininess; // coefficient de brillance du cone
 };
 
 } // namespace RayTracer
