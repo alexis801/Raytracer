@@ -59,7 +59,7 @@ private:
      * @param scene scene a tester
      * @param hit point d'intersection
      */
-    Color computeSurface(const Scene &scene,
+    Color computeSurface(const Scene &scene, const Ray &ray,
         const HitRecord &hit) const;
 
     /**
@@ -70,7 +70,7 @@ private:
      * @param rgb tableau {r, g, b} a accumuler
      */
     void accumulateLight(const Scene &scene, const ILight &light,
-        const HitRecord &hit, double rgb[3]) const;
+        const Ray &ray, const HitRecord &hit, double rgb[3]) const;
 
     /**
      * @brief Calcule la couleur reflechie

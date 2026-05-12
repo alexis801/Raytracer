@@ -77,7 +77,7 @@ Color Renderer::computeColor(const Scene &scene,
 
     if (!hit)
         return {0, 0, 0};
-    Color surface = computeSurface(scene, *hit);
+    Color surface = computeSurface(scene, ray, *hit);
     if (depth >= MAX_RECURSION_DEPTH)
         return surface;
     Color reflected = computeReflection(scene, ray, *hit, depth);
@@ -136,34 +136,50 @@ Color Renderer::computeRefraction(const Scene &scene,
 }
 
 void Renderer::accumulateLight(const Scene &scene,
-    const ILight &light, const HitRecord &hit, double rgb[3]) const
+    const ILight &light, const Ray &ray, const HitRecord &hit,
+    double rgb[3]) const
 {
     Vector3D lightDir = light.getDirection(hit.point);
-    Ray shadowRay{hit.point + hit.normal * EPSILON,
-        lightDir.normalize()};
+    Vector3D L = lightDir.normalize();
+    Ray shadowRay{hit.point + hit.normal * EPSILON, L};
     auto shadowHit = scene.getClosestHit(shadowRay);
 
     if (shadowHit
         && shadowHit->distance < light.getDistance(hit.point))
         return;
-    double diffuse = std::max(0.0,
-        hit.normal.dot(lightDir.normalize()));
-    double contrib = scene.getDiffuse()
+
+    // Composante diffuse (Lambert)
+    double diffuse = std::max(0.0, hit.normal.dot(L));
+    double diffContrib = scene.getDiffuse()
         * light.getIntensity(hit.point) * diffuse;
     Color lc = light.getColor();
-    rgb[0] += contrib * (lc.r / 255.0);
-    rgb[1] += contrib * (lc.g / 255.0);
-    rgb[2] += contrib * (lc.b / 255.0);
+    rgb[0] += diffContrib * (lc.r / 255.0);
+    rgb[1] += diffContrib * (lc.g / 255.0);
+    rgb[2] += diffContrib * (lc.b / 255.0);
+
+    if (hit.specular <= 0.0 || diffuse <= 0.0)
+        return;
+    // R = 2 * (N . L) * N - L : direction de la lumiere reflechie
+    Vector3D R = hit.normal * 2.0 * hit.normal.dot(L) - L;
+    // V : direction du point vers la camera oppose au rayon
+    Vector3D V = (ray.direction * -1.0).normalize();
+    double RdotV = std::max(0.0, R.dot(V));
+    double specFactor = std::pow(RdotV, hit.shininess)
+        * hit.specular * light.getIntensity(hit.point);
+    // Le reflet prend la couleur de la lumiere
+    rgb[0] += specFactor * (lc.r / 255.0);
+    rgb[1] += specFactor * (lc.g / 255.0);
+    rgb[2] += specFactor * (lc.b / 255.0);
 }
 
 Color Renderer::computeSurface(const Scene &scene,
-    const HitRecord &hit) const
+    const Ray &ray, const HitRecord &hit) const
 {
     double rgb[3] = {scene.getAmbient(), scene.getAmbient(),
         scene.getAmbient()};
 
     for (const auto &light : scene.getLights())
-        accumulateLight(scene, *light, hit, rgb);
+        accumulateLight(scene, *light, ray, hit, rgb);
     return {
         static_cast<int>(hit.color.r
             * std::clamp(rgb[0], 0.0, 1.0)),
