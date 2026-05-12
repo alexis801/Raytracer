@@ -20,7 +20,9 @@ namespace RayTracer {
 class Cylinder : public IPrimitive {
     public:
         Cylinder(Vector3D center, double radius, Color color,
-            double height = 0.0);
+            double height = 0.0, double reflection = 0.0,
+            double transparency = 0.0, double refraction = 1.0,
+            double specular = 0.0, double shininess = 0.0);
         ~Cylinder() override = default;
 
         Cylinder(const Cylinder &other) = default;
@@ -52,6 +54,11 @@ class Cylinder : public IPrimitive {
         double _radius;
         Color _color;
         double _height;
+        double _reflection;
+        double _transparency;
+        double _refraction;
+        double _specular;
+        double _shininess;
 };
 
 } // namespace RayTracer
