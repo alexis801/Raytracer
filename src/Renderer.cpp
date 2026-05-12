@@ -137,7 +137,7 @@ Color Renderer::computeRefraction(const Scene &scene,
 
 void Renderer::accumulateLight(const Scene &scene,
     const ILight &light, const Ray &ray, const HitRecord &hit,
-    double rgb[3]) const
+    double diffRgb[3], double specRgb[3]) const
 {
     Vector3D lightDir = light.getDirection(hit.point);
     Vector3D L = lightDir.normalize();
@@ -153,9 +153,9 @@ void Renderer::accumulateLight(const Scene &scene,
     double diffContrib = scene.getDiffuse()
         * light.getIntensity(hit.point) * diffuse;
     Color lc = light.getColor();
-    rgb[0] += diffContrib * (lc.r / 255.0);
-    rgb[1] += diffContrib * (lc.g / 255.0);
-    rgb[2] += diffContrib * (lc.b / 255.0);
+    diffRgb[0] += diffContrib * (lc.r / 255.0);
+    diffRgb[1] += diffContrib * (lc.g / 255.0);
+    diffRgb[2] += diffContrib * (lc.b / 255.0);
 
     if (hit.specular <= 0.0 || diffuse <= 0.0)
         return;
@@ -164,29 +164,30 @@ void Renderer::accumulateLight(const Scene &scene,
     // V : direction du point vers la camera oppose au rayon
     Vector3D V = (ray.direction * -1.0).normalize();
     double RdotV = std::max(0.0, R.dot(V));
-    double specFactor = std::pow(RdotV, hit.shininess)
+    double shininess = hit.shininess > 0.0 ? hit.shininess : 32.0;
+    double specFactor = std::pow(RdotV, shininess)
         * hit.specular * light.getIntensity(hit.point);
     // Le reflet prend la couleur de la lumiere
-    rgb[0] += specFactor * (lc.r / 255.0);
-    rgb[1] += specFactor * (lc.g / 255.0);
-    rgb[2] += specFactor * (lc.b / 255.0);
+    specRgb[0] += specFactor * (lc.r / 255.0);
+    specRgb[1] += specFactor * (lc.g / 255.0);
+    specRgb[2] += specFactor * (lc.b / 255.0);
 }
 
 Color Renderer::computeSurface(const Scene &scene,
     const Ray &ray, const HitRecord &hit) const
 {
-    double rgb[3] = {scene.getAmbient(), scene.getAmbient(),
-        scene.getAmbient()};
+    double diffRgb[3] = {scene.getAmbient(), scene.getAmbient(), scene.getAmbient()};
+    double specRgb[3] = {0.0, 0.0, 0.0};
 
     for (const auto &light : scene.getLights())
-        accumulateLight(scene, *light, ray, hit, rgb);
+        accumulateLight(scene, *light, ray, hit, diffRgb, specRgb);
     return {
-        static_cast<int>(hit.color.r
-            * std::clamp(rgb[0], 0.0, 1.0)),
-        static_cast<int>(hit.color.g
-            * std::clamp(rgb[1], 0.0, 1.0)),
-        static_cast<int>(hit.color.b
-            * std::clamp(rgb[2], 0.0, 1.0))
+    std::clamp(static_cast<int>(hit.color.r * std::clamp(diffRgb[0], 0.0, 1.0)
+        + 255.0 * std::clamp(specRgb[0], 0.0, 1.0)), 0, 255),
+    std::clamp(static_cast<int>(hit.color.g * std::clamp(diffRgb[1], 0.0, 1.0)
+        + 255.0 * std::clamp(specRgb[1], 0.0, 1.0)), 0, 255),
+    std::clamp(static_cast<int>(hit.color.b * std::clamp(diffRgb[2], 0.0, 1.0)
+        + 255.0 * std::clamp(specRgb[2], 0.0, 1.0)), 0, 255)
     };
 }
 

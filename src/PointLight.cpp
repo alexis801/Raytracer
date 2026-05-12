@@ -52,9 +52,9 @@ extern "C" {
                 color = RayTracer::Color{col["r"], col["g"],
                     col["b"]};
             }
+            double intensity = cfg.exists("intensity") ? (double)cfg["intensity"] : 1.0;
             return std::make_unique<RayTracer::PointLight>(
-                RayTracer::Vector3D(cfg["x"], cfg["y"],
-                    cfg["z"]), 1.0, color);
+                RayTracer::Vector3D(cfg["x"], cfg["y"], cfg["z"]), intensity, color);
         });
     }
 }

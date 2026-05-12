@@ -70,7 +70,8 @@ private:
      * @param rgb tableau {r, g, b} a accumuler
      */
     void accumulateLight(const Scene &scene, const ILight &light,
-        const Ray &ray, const HitRecord &hit, double rgb[3]) const;
+    const Ray &ray, const HitRecord &hit,
+    double diffRgb[3], double specRgb[3]) const;
 
     /**
      * @brief Calcule la couleur reflechie
