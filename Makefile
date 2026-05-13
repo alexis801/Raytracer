@@ -27,7 +27,12 @@ PLUGINS		=	$(PLUGIN_NAMES:%=$(PLUGIN_DIR)/%.so)
 
 LDFLAGS		=	-lconfig++ -ldl
 
-all:	$(NAME) $(PLUGINS)
+all:	deps $(NAME) $(PLUGINS)
+
+deps:
+	@echo '#include <libconfig.h++>' | $(CXX) -E -x c++ - -o /dev/null 2>/dev/null \
+		|| (apt-get update && apt-get install -y libconfig++-dev) 2>/dev/null \
+		|| (dnf install -y libconfig-devel) 2>/dev/null
 
 $(NAME):	$(CORE_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
@@ -94,4 +99,4 @@ docs:
 doc_clean:
 	$(RM) -r docs
 
-.PHONY:	all clean fclean re dev tests_run tests_clean doc doc_clean cs
+.PHONY:	all deps clean fclean re dev tests_run tests_clean doc doc_clean cs
