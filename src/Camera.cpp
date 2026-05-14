@@ -42,4 +42,9 @@ int Camera::getHeight() const
     return _height;
 }
 
+void Camera::moveZ(double offset)
+{ 
+    _position.z += offset;
+}
+
 } // namespace RayTracer
