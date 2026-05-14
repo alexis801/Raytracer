@@ -24,8 +24,16 @@ class Triangle : public IPrimitive {
             double specular = 0.0, double shininess = 0.0);
         ~Triangle() override = default;
 
-    protected:
     private:
+        Vector3D _center;
+        double _radius;
+        Color _color;
+        double _height;
+        double _reflection;
+        double _transparency;
+        double _refraction;
+        double _specular;
+        double _shininess;
 };
 
 }
