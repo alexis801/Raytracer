@@ -191,4 +191,34 @@ Color Renderer::computeSurface(const Scene &scene,
     };
 }
 
+void Renderer::renderToBuffer(const Scene &scene, const Camera &camera, 
+    std::vector<Color> &framebuffer, int antiAliasing) const
+{
+    int imageWidth = camera.getWidth();
+    int imageHeight = camera.getHeight();
+    
+    // On s'assure que le buffer a la bonne taille
+    if (framebuffer.size() != static_cast<size_t>(imageWidth * imageHeight))
+        framebuffer.resize(imageWidth * imageHeight);
+
+    // On utilise le nombre de coeurs disponibles sur la machine
+    unsigned int numThreads = std::thread::hardware_concurrency();
+    if (numThreads == 0) numThreads = 1;
+
+    std::vector<std::thread> threads;
+    int rowsPerThread = imageHeight / numThreads;
+
+    for (unsigned int i = 0; i < numThreads; i++) {
+        int rowStart = i * rowsPerThread;
+        int rowEnd = (i == numThreads - 1) ? imageHeight : (i + 1) * rowsPerThread;
+        
+        threads.emplace_back(&Renderer::renderPart, this, 
+            std::ref(scene), std::ref(camera), std::ref(framebuffer), 
+            rowStart, rowEnd, antiAliasing);
+    }
+
+    for (auto &t : threads) {
+        t.join();
+    }
+}
 } // namespace RayTracer
