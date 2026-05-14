@@ -37,6 +37,7 @@ public:
 
     int getWidth() const;
     int getHeight() const;
+    void moveZ(double offset);
 
 private:
     int _width = 1920;
