@@ -4,50 +4,68 @@
 title Diagramme de Composants
 
 Container_Boundary(engine, "Moteur de rendu") {
-    Component(raycast, "Ray Caster", "C++", "Pour chaque pixel de l'image,\ncree un rayon depuis la camera\net le lance dans la scene.")
+    Component(raycast, "Ray Caster", "C++", "Pour chaque pixel de l'image,\ncree un rayon depuis la camera\net le lance dans la scene.\nGere le multithreading et\nl'anti-aliasing.")
 
     Component(intersection, "Calculateur d'intersections", "C++", "Teste si un rayon touche\nun objet. Trouve le point\nle plus proche.")
 
-    Component(shading, "Calculateur d'eclairage", "C++", "Calcule la couleur d'un point\nen fonction des lumieres,\nde l'ombre, et du materiau.")
+    Component(shading, "Calculateur d'eclairage", "C++", "Calcule la couleur d'un point\nen fonction des lumieres,\ndes ombres, du materiau\net du modele de Phong.")
 
     Component(camera, "Camera", "C++", "Position, orientation,\nchamp de vision.\nGenere les rayons primaires.")
+}
+
+Container_Boundary(materials, "Materiaux") {
+    Component(matflat, "Couleur unie", "C++", "Couleur RGB de base\nde chaque objet.")
+
+    Component(matrefl, "Reflexion / Refraction", "C++", "Effet miroir et effet verre.\nGere les rebonds de rayons.")
+
+    Component(matphong, "Phong (specular + shininess)", "C++", "Reflets brillants\nsur les objets.")
 }
 
 Container_Boundary(scenegraph, "Scene (Composite)") {
     Component(iprimitive, "IPrimitive", "Interface C++", "Contrat pour toutes les formes 3D.\nhits(ray) -> point d'intersection")
 
-    Component(sphere, "Sphere", "Plugin .so", "Forme 3D : boule.\nCalcul d'intersection\navec un rayon via\nequation quadratique.")
+    Component(scenenode, "SceneNode / GroupNode", "C++ (Composite)", "Permet de regrouper\ndes objets ensemble.\nUn groupe se comporte\ncomme un seul objet.")
 
-    Component(plane, "Plane", "Plugin .so", "Forme 3D : plan infini.\nCalcul d'intersection\nsimple.")
+    Component(sphere, "Sphere", "Plugin .so", "Forme 3D : boule.")
+    Component(plane, "Plane", "Plugin .so", "Forme 3D : plan infini.")
+    Component(cylinder, "Cylinder", "Plugin .so", "Forme 3D : tube\n(infini ou avec hauteur).")
+    Component(cone, "Cone", "Plugin .so", "Forme 3D : cone\n(infini ou avec hauteur).")
+    Component(triangle, "Triangle", "Plugin .so", "Forme 3D : triangle\ndefini par 3 sommets.")
 
-    Component(cylinder, "Cylinder", "Plugin .so", "Forme 3D : tube.\nCalcul d'intersection\nvia equation quadratique\nmodifiee.")
-
-    Component(cone, "Cone", "Plugin .so", "Forme 3D : cone.\nCalcul d'intersection.")
-
-    Component(ilight, "ILight", "Interface C++", "Contrat pour les lumieres.\ngetIntensity(point) -> couleur")
-
-    Component(dirlight, "Directional Light", "C++", "Lumiere parallele\n(comme le soleil).")
+    Component(ilight, "ILight", "Interface C++", "Contrat pour les lumieres.\ngetIntensity, getColor, getDirection")
 
     Component(amblight, "Ambient Light", "C++", "Lumiere de base\npartout dans la scene.")
+    Component(dirlight, "Directional Light", "Plugin .so", "Lumiere parallele\n(comme le soleil).\nPeut avoir une couleur.")
+    Component(pntlight, "Point Light", "Plugin .so", "Lumiere ponctuelle\n(comme une ampoule).\nPeut avoir une couleur.")
 }
 
-Container_Boundary(factory_sys, "Factory") {
-    Component(factory, "PrimitiveFactory", "C++", "Registre des types.\nCree les objets\na partir de leur nom.")
+Container_Boundary(plugin_sys, "Systeme de plugins") {
+    Component(pluginmgr, "PluginManager", "C++ / libdl", "Scanne ./plugins/,\ncharge les .so au demarrage,\net enregistre chaque type\ndans la Factory.")
+
+    Component(factory, "Factory", "C++ (template)", "Registre des types\n(primitives + lumieres).\nCree les objets a partir\nde leur nom (sphere, cone,\ntriangle, point, etc.).")
 }
 
 Rel(raycast, camera, "Demande un rayon pour chaque pixel")
 Rel(raycast, intersection, "Teste chaque rayon")
-Rel(intersection, iprimitive, "Appelle hits() sur chaque objet")
+Rel(intersection, scenenode, "Parcourt l'arbre de scene")
+Rel(scenenode, iprimitive, "Contient")
+Rel(intersection, iprimitive, "Appelle hits()")
 Rel(raycast, shading, "Calcule la couleur du point touche")
 Rel(shading, ilight, "Interroge chaque lumiere")
+Rel(shading, materials, "Applique le materiau")
 
 Rel(sphere, iprimitive, "implemente")
 Rel(plane, iprimitive, "implemente")
 Rel(cylinder, iprimitive, "implemente")
 Rel(cone, iprimitive, "implemente")
-Rel(dirlight, ilight, "implemente")
+Rel(triangle, iprimitive, "implemente")
+Rel(scenenode, iprimitive, "implemente")
 Rel(amblight, ilight, "implemente")
+Rel(dirlight, ilight, "implemente")
+Rel(pntlight, ilight, "implemente")
 
+Rel(pluginmgr, factory, "Enregistre les types")
 Rel(factory, iprimitive, "cree des instances de")
+Rel(factory, ilight, "cree des instances de")
 
 @enduml
