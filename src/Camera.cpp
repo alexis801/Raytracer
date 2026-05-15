@@ -42,9 +42,28 @@ int Camera::getHeight() const
     return _height;
 }
 
-void Camera::moveZ(double offset)
-{ 
-    _position.z += offset;
+void Camera::rotate(double verticalAngle, double horizontalAngle)
+{
+    _rotation.x += verticalAngle;
+    _rotation.y += horizontalAngle;
+}
+
+void Camera::moveForward(double distance)
+{
+    Vector3D forward(0, 0, 1);
+ 
+    forward = forward.rotateX(DEG_TO_RAD(_rotation.x));
+    forward = forward.rotateY(DEG_TO_RAD(_rotation.y));
+    _position = _position + forward * distance;
+}
+
+void Camera::moveRight(double distance)
+{
+    Vector3D right(1, 0, 0);
+
+    right = right.rotateX(DEG_TO_RAD(_rotation.x));
+    right = right.rotateY(DEG_TO_RAD(_rotation.y));
+    _position = _position + right * distance;
 }
 
 } // namespace RayTracer
