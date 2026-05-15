@@ -91,7 +91,8 @@ CORE_NO_MAIN=	$(filter-out src/main.cpp, $(CORE_SRC))
 PLUGIN_SRC	=	src/Sphere.cpp src/Plane.cpp src/Cone.cpp \
 				src/Cylinder.cpp src/PointLight.cpp \
 				src/Triangle.cpp \
-				src/DirectionalLight.cpp
+				src/DirectionalLight.cpp \
+				src/Texture.cpp
 
 tests_run:	$(NAME)
 	$(CXX) $(CXXFLAGS) -o unit_tests $(CORE_NO_MAIN) $(PLUGIN_SRC) $(TEST_SRC) --coverage -lcriterion $(LDFLAGS)
