@@ -34,10 +34,11 @@ public:
      * @param y ligne du pixel
      */
     Ray generateRay(int x, int y) const;
-
     int getWidth() const;
     int getHeight() const;
-    void moveZ(double offset);
+    void rotate(double xOffset, double yOffset);
+    void moveForward(double offset);
+    void moveRight(double offset);
 
 private:
     int _width = 1920;
