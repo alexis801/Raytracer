@@ -13,11 +13,13 @@ namespace RayTracer {
 
 Plane::Plane(const std::string &axis, double position,
     Color color, double reflection, double transparency,
-    double refraction, double specular, double shininess)
+    double refraction, double specular, double shininess,
+    std::shared_ptr<Texture> texture, double textureScale)
     : _axis(axis), _position(position), _color(color),
     _reflection(reflection), _transparency(transparency),
     _refraction(refraction), _specular(specular),
-    _shininess(shininess)
+    _shininess(shininess), _texture(std::move(texture)),
+    _textureScale(textureScale)
 {
 }
 
@@ -46,7 +48,17 @@ std::optional<HitRecord> Plane::hits(const Ray &ray) const
     if (t < EPSILON)
         return std::nullopt;
     Vector3D point = ray.origin + ray.direction * t;
-    return HitRecord{point, normal, t, _color,
+    Color color = _color;
+    if (_texture && _texture->isLoaded()) {
+        double u = 0.0;
+        double v = 0.0;
+        if (_axis == "X") { u = point.z; v = point.y; }
+        else if (_axis == "Y") { u = point.x; v = point.z; }
+        else { u = point.x; v = point.y; }
+        color = _texture->sample(
+            u / _textureScale, v / _textureScale);
+    }
+    return HitRecord{point, normal, t, color,
         _reflection, _transparency, _refraction, _specular, _shininess};
 }
 
@@ -74,14 +86,15 @@ extern "C" {
     {
         factory.registerType("plane",
             [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
             double r, t, i, spec, shin;
             parseMaterial(cfg, r, t, i, spec, shin);
+            double scale = cfg.exists("textureScale")
+                ? (double)cfg["textureScale"] : 20.0;
             return std::make_unique<RayTracer::Plane>(
                 cfg["axis"],
                 (double)cfg["position"],
-                RayTracer::Color{col["r"], col["g"],
-                    col["b"]}, r, t, i, spec, shin);
+                RayTracer::parseColor(cfg), r, t, i, spec, shin,
+                RayTracer::parseTexture(cfg), scale);
         });
     }
 }

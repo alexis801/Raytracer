@@ -25,7 +25,7 @@ PLUGIN_NAMES	=	raytracer_sphere raytracer_plane \
 					raytracer_pointlight raytracer_directionallight
 PLUGINS		=	$(PLUGIN_NAMES:%=$(PLUGIN_DIR)/%.so)
 
-LDFLAGS		=	-lconfig++ -ldl
+LDFLAGS		=	-lconfig++ -ldl -lsfml-graphics -lsfml-window -lsfml-system
 
 all:	deps $(NAME) $(PLUGINS)
 
@@ -41,21 +41,21 @@ $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(PLUGIN_DIR)/raytracer_sphere.so: src/Sphere.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_sphere.so: src/Sphere.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_plane.so: src/Plane.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_plane.so: src/Plane.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_cone.so: src/Cone.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_cone.so: src/Cone.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_cylinder.so: src/Cylinder.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_cylinder.so: src/Cylinder.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
 $(PLUGIN_DIR)/raytracer_pointlight.so: src/PointLight.cpp src/types.cpp
 	@mkdir -p $(PLUGIN_DIR)
@@ -81,6 +81,7 @@ TEST_SRC	=	$(shell find tests -name '*.cpp')
 CORE_NO_MAIN=	$(filter-out src/main.cpp, $(CORE_SRC))
 PLUGIN_SRC	=	src/Sphere.cpp src/Plane.cpp src/Cone.cpp \
 				src/Cylinder.cpp src/PointLight.cpp \
+				src/Triangle.cpp src/Texture.cpp \
 				src/DirectionalLight.cpp
 
 tests_run:	$(NAME)

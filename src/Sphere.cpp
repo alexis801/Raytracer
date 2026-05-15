@@ -15,11 +15,12 @@ namespace RayTracer {
 
 Sphere::Sphere(Vector3D center, double radius, Color color,
     double reflection, double transparency, double refraction,
-    double specular, double shininess)
+    double specular, double shininess,
+    std::shared_ptr<Texture> texture)
     : _center(center), _radius(radius), _color(color),
     _reflection(reflection), _transparency(transparency),
     _refraction(refraction), _specular(specular),
-    _shininess(shininess)
+    _shininess(shininess), _texture(std::move(texture))
 {
 }
 
@@ -42,7 +43,13 @@ std::optional<HitRecord> Sphere::hits(const Ray &ray) const
     }
     Vector3D point = ray.origin + ray.direction * t;
     Vector3D normal = (point - _center).normalize();
-    return HitRecord{point, normal, t, _color,
+    Color color = _color;
+    if (_texture && _texture->isLoaded()) {
+        double u = 0.5 + std::atan2(normal.y, normal.x) / (2.0 * PI);
+        double v = 0.5 - std::asin(std::clamp(normal.z, -1.0, 1.0)) / PI;
+        color = _texture->sample(u, v);
+    }
+    return HitRecord{point, normal, t, color,
         _reflection, _transparency, _refraction, _specular, _shininess};
 }
 
@@ -71,15 +78,14 @@ extern "C" {
     {
         factory.registerType("sphere",
             [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
             double r, t, i, spec, shin;
             parseMaterial(cfg, r, t, i, spec, shin);
             return std::make_unique<RayTracer::Sphere>(
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
                     cfg["z"]),
                 (double)cfg["r"],
-                RayTracer::Color{col["r"], col["g"],
-                    col["b"]}, r, t, i, spec, shin);
+                RayTracer::parseColor(cfg), r, t, i, spec, shin,
+                RayTracer::parseTexture(cfg));
         });
     }
 }

@@ -10,6 +10,8 @@
 
 
 #include "IPrimitive.hpp"
+#include "Texture.hpp"
+#include <memory>
 
 namespace RayTracer {
 
@@ -22,7 +24,8 @@ class Cylinder : public IPrimitive {
         Cylinder(Vector3D center, double radius, Color color,
             double height = 0.0, double reflection = 0.0,
             double transparency = 0.0, double refraction = 1.0,
-            double specular = 0.0, double shininess = 0.0);
+            double specular = 0.0, double shininess = 0.0,
+            std::shared_ptr<Texture> texture = nullptr);
         ~Cylinder() override = default;
 
         Cylinder(const Cylinder &other) = default;
@@ -59,6 +62,7 @@ class Cylinder : public IPrimitive {
         double _refraction;
         double _specular;
         double _shininess;
+        std::shared_ptr<Texture> _texture;
 };
 
 } // namespace RayTracer

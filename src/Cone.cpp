@@ -16,11 +16,12 @@ namespace RayTracer {
 Cone::Cone(const std::string &axis, Vector3D apex, double angle,
     Color color, double height, double reflection,
     double transparency, double refraction, double specular,
-    double shininess)
+    double shininess, std::shared_ptr<Texture> texture)
     : _axis(axis), _apex(apex), _angle(angle), _color(color),
     _height(height), _reflection(reflection),
     _transparency(transparency), _refraction(refraction),
-    _specular(specular), _shininess(shininess)
+    _specular(specular), _shininess(shininess),
+    _texture(std::move(texture))
 {
 }
 
@@ -92,6 +93,20 @@ double Cone::findClosestRoot(const Ray &ray, double t1,
     return t;
 }
 
+Color Cone::sampleTexture(const Vector3D &hitPoint) const
+{
+    Vector3D local = hitPoint - _apex;
+    double axial;
+    double a;
+    double b;
+    if (_axis == "Y") { axial = local.y; a = local.z; b = local.x; }
+    else if (_axis == "X") { axial = local.x; a = local.z; b = local.y; }
+    else { axial = local.z; a = local.y; b = local.x; }
+    double u = 0.5 + std::atan2(a, b) / (2.0 * PI);
+    double v = _height > 0 ? axial / _height : axial * 0.05;
+    return _texture->sample(u, v);
+}
+
 std::optional<HitRecord> Cone::hits(const Ray &ray) const
 {
     double tan = std::tan(DEG_TO_RAD(_angle));
@@ -109,8 +124,10 @@ std::optional<HitRecord> Cone::hits(const Ray &ray) const
     if (t < 0)
         return std::nullopt;
     Vector3D hitPoint = ray.origin + ray.direction * t;
+    Color color = (_texture && _texture->isLoaded())
+        ? sampleTexture(hitPoint) : _color;
     return HitRecord{hitPoint, ComputeNormal(hitPoint, k2), t,
-        _color, _reflection, _transparency, _refraction, _specular, _shininess};
+        color, _reflection, _transparency, _refraction, _specular, _shininess};
 }
 
 } // namespace RayTracer
@@ -132,7 +149,6 @@ extern "C" {
     {
         factory.registerType("cone",
             [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
             double height = 0.0;
             if (cfg.exists("height"))
                 height = (double)cfg["height"];
@@ -143,9 +159,9 @@ extern "C" {
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
                     cfg["z"]),
                 (double)cfg["angle"],
-                RayTracer::Color{col["r"], col["g"],
-                    col["b"]},
-                height, r, t, i, spec, shin);
+                RayTracer::parseColor(cfg),
+                height, r, t, i, spec, shin,
+                RayTracer::parseTexture(cfg));
         });
     }
 }
