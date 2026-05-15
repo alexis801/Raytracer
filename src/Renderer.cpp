@@ -51,9 +51,9 @@ void Renderer::renderPart(const Scene &scene, const Camera &camera,
             double totalBlue = 0;
             for (int sy = 0; sy < antiAliasing; sy++) {
                 for (int sx = 0; sx < antiAliasing; sx++) {
-                    double offsetX = x + (sx + 0.5) * Pixielsize;
-                    double offsetY = y + (sy + 0.5) * Pixielsize;
-                    Ray ray = camera.generateRay(offsetX, offsetY);
+                    double coordX = x + (sx + 0.5) * Pixielsize;
+                    double coordY = y + (sy + 0.5) * Pixielsize;
+                    Ray ray = camera.generateRay(coordX, coordY);
                     Color subColor = computeColor(scene, ray, 0);
                     totalRed += subColor.r;
                     totalGreen += subColor.g;
@@ -197,26 +197,19 @@ void Renderer::renderToBuffer(const Scene &scene, const Camera &camera,
     int imageWidth = camera.getWidth();
     int imageHeight = camera.getHeight();
     
-    // On s'assure que le buffer a la bonne taille
     if (framebuffer.size() != static_cast<size_t>(imageWidth * imageHeight))
         framebuffer.resize(imageWidth * imageHeight);
-
-    // On utilise le nombre de coeurs disponibles sur la machine
     unsigned int numThreads = std::thread::hardware_concurrency();
     if (numThreads == 0) numThreads = 1;
-
     std::vector<std::thread> threads;
     int rowsPerThread = imageHeight / numThreads;
-
     for (unsigned int i = 0; i < numThreads; i++) {
         int rowStart = i * rowsPerThread;
         int rowEnd = (i == numThreads - 1) ? imageHeight : (i + 1) * rowsPerThread;
-        
         threads.emplace_back(&Renderer::renderPart, this, 
             std::ref(scene), std::ref(camera), std::ref(framebuffer), 
             rowStart, rowEnd, antiAliasing);
     }
-
     for (auto &t : threads) {
         t.join();
     }
