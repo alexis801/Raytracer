@@ -24,6 +24,17 @@ class Triangle : public IPrimitive {
             double specular = 0.0, double shininess = 0.0);
         ~Triangle() override = default;
 
+        Triangle(const Triangle &other) = default;
+        Triangle &operator=(const Triangle &other) = default;
+        Triangle(Triangle &&other) = default;
+        Triangle &operator=(Triangle &&other) = default;
+
+        /**
+        * @brief Teste si un rayon touche le triangle
+        * @param ray rayon a tester
+        */
+        std::optional<HitRecord> hits(const Ray &ray) const override;
+
     private:
         Vector3D _center;
         double _radius;
