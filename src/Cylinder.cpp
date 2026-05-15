@@ -7,6 +7,7 @@
 
 #include "Cylinder.hpp"
 #include "Factory.hpp"
+#include "macros.hpp"
 
 #include <cmath>
 
@@ -15,11 +16,13 @@ namespace RayTracer {
 
 Cylinder::Cylinder(Vector3D center, double radius, Color color,
     double height, double reflection, double transparency,
-    double refraction, double specular, double shininess)
+    double refraction, double specular, double shininess,
+    std::shared_ptr<Texture> texture)
     : _center(center), _radius(radius), _color(color),
       _height(height), _reflection(reflection),
       _transparency(transparency), _refraction(refraction),
-      _specular(specular), _shininess(shininess)
+      _specular(specular), _shininess(shininess),
+      _texture(std::move(texture))
 {
 }
 
@@ -67,11 +70,22 @@ std::optional<HitRecord> Cylinder::hits(const Ray &ray) const
     Vector3D normal = Vector3D(hitPoint.x - _center.x, 0,
     hitPoint.z - _center.z).normalize();
 
+    Color color = _color;
+    if (_texture && _texture->isLoaded()) {
+        double u = 0.5 + std::atan2(normal.z, normal.x) / (2.0 * PI);
+        double v;
+        if (_height > 0)
+            v = (hitPoint.y - _center.y) / _height;
+        else
+            v = (hitPoint.y - _center.y) / (2.0 * _radius);
+        color = _texture->sample(u, v);
+    }
+
     HitRecord rec;
     rec.point = hitPoint;
     rec.normal = normal;
     rec.distance = t;
-    rec.color = _color;
+    rec.color = color;
     rec.reflection = _reflection;
     rec.transparency = _transparency;
     rec.refraction = _refraction;
@@ -105,7 +119,6 @@ extern "C" {
     {
         factory.registerType("cylinder",
             [](const libconfig::Setting &cfg) {
-            const auto &col = cfg["color"];
             double height = 0.0;
             if (cfg.exists("height"))
                 height = (double)cfg["height"];
@@ -115,8 +128,9 @@ extern "C" {
                 RayTracer::Vector3D(cfg["x"], cfg["y"],
                     cfg["z"]),
                 (double)cfg["r"],
-                RayTracer::Color{col["r"], col["g"],
-                    col["b"]}, height, r, t, i, spec, shin);
+                RayTracer::parseColor(cfg), height,
+                r, t, i, spec, shin,
+                RayTracer::parseTexture(cfg));
         });
     }
 }

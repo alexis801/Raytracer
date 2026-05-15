@@ -8,9 +8,11 @@
 #ifndef CONE_HPP_
 #define CONE_HPP_
 
+#include <memory>
 #include <string>
 
 #include "IPrimitive.hpp"
+#include "Texture.hpp"
 
 namespace RayTracer {
 /**
@@ -24,7 +26,8 @@ Cone(const std::string &axis, const Vector3D apex, double angle,
     const Color color, double height = 0.0,
     double reflection = 0.0, double transparency = 0.0,
     double refraction = 1.0, double specular = 0.0,
-    double shininess = 0.0);
+    double shininess = 0.0,
+    std::shared_ptr<Texture> texture = nullptr);
     ~Cone() override = default;
 
     // autoriser la copie et deplacement par défaut
@@ -73,6 +76,12 @@ private:
     double findClosestRoot(const Ray &ray, double t1,
         double t2) const;
 
+    /**
+     * @brief Echantillonne la texture aux coords UV du point d'impact
+     * @param hitPoint point d'impact dans l'espace
+     */
+    Color sampleTexture(const Vector3D &hitPoint) const;
+
     std::string _axis; // axe symetrique du cone (x, y ou z)
     Vector3D _apex; // sommet du cone : pointe
     double _angle; // angle ouverture du cone en degrés
@@ -83,6 +92,7 @@ private:
     double _refraction; // indice de refraction du cone
     double _specular; // coefficient de specularité du cone
     double _shininess; // coefficient de brillance du cone
+    std::shared_ptr<Texture> _texture;
 };
 
 } // namespace RayTracer

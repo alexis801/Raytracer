@@ -9,6 +9,8 @@
 #define SPHERE_HPP_
 
 #include "IPrimitive.hpp"
+#include "Texture.hpp"
+#include <memory>
 
 namespace RayTracer {
 
@@ -21,7 +23,8 @@ public:
     Sphere(Vector3D center, double radius, Color color,
         double reflection = 0.0, double transparency = 0.0,
         double refraction = 1.0, double specular = 0.0,
-        double shininess = 0.0);
+        double shininess = 0.0,
+        std::shared_ptr<Texture> texture = nullptr);
     ~Sphere() override = default;
 
     Sphere(const Sphere &other) = default;
@@ -44,6 +47,7 @@ private:
     double _refraction;
     double _specular;
     double _shininess;
+    std::shared_ptr<Texture> _texture;
 };
 
 } // namespace RayTracer

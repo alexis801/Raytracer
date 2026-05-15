@@ -9,6 +9,8 @@
 #define PLANE_HPP_
 
 #include "IPrimitive.hpp"
+#include "Texture.hpp"
+#include <memory>
 #include <string>
 
 namespace RayTracer {
@@ -22,7 +24,9 @@ public:
     Plane(const std::string &axis, double position, Color color,
         double reflection = 0.0, double transparency = 0.0,
         double refraction = 1.0, double specular = 0.0,
-        double shininess = 0.0);
+        double shininess = 0.0,
+        std::shared_ptr<Texture> texture = nullptr,
+        double textureScale = 20.0);
     ~Plane() override = default;
 
     Plane(const Plane &other) = default;
@@ -45,6 +49,8 @@ private:
     double _refraction;
     double _specular;
     double _shininess;
+    std::shared_ptr<Texture> _texture;
+    double _textureScale;
 };
 
 } // namespace RayTracer

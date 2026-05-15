@@ -45,21 +45,21 @@ $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(PLUGIN_DIR)/raytracer_sphere.so: src/Sphere.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_sphere.so: src/Sphere.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_plane.so: src/Plane.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_plane.so: src/Plane.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_cone.so: src/Cone.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_cone.so: src/Cone.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
-$(PLUGIN_DIR)/raytracer_cylinder.so: src/Cylinder.cpp src/types.cpp
+$(PLUGIN_DIR)/raytracer_cylinder.so: src/Cylinder.cpp src/types.cpp src/Texture.cpp
 	@mkdir -p $(PLUGIN_DIR)
-	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++ -lsfml-graphics -lsfml-system
 
 $(PLUGIN_DIR)/raytracer_pointlight.so: src/PointLight.cpp src/types.cpp
 	@mkdir -p $(PLUGIN_DIR)
