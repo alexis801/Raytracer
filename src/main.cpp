@@ -10,28 +10,86 @@
 #include "SceneParser.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+
+
+void updateTexture(sf::Texture &texture, const std::vector<RayTracer::Color> &framebuffer, int width, int height)
+{
+    std::vector<sf::Uint8> pixels(width * height * 4);
+    for (int i = 0; i < width * height; ++i) {
+        pixels[i * 4]     = framebuffer[i].r;
+        pixels[i * 4 + 1] = framebuffer[i].g;
+        pixels[i * 4 + 2] = framebuffer[i].b;
+        pixels[i * 4 + 3] = 255;
+    }
+    texture.update(pixels.data());
+}
+
+void runInteractiveMode(RayTracer::Scene &scene, RayTracer::Camera &camera, RayTracer::Renderer &renderer)
+{
+    int width = camera.getWidth();
+    int height = camera.getHeight();
+
+    sf::RenderWindow window(sf::VideoMode(width, height), "Raytracer ");
+    sf::Texture texture;
+    texture.create(width, height);
+    sf::Sprite sprite(texture);
+    std::vector<RayTracer::Color> framebuffer(width * height);
+    bool redraw = true;
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Z || event.key.code == sf::Keyboard::W)
+                    camera.moveForward(10.0);
+                else if (event.key.code == sf::Keyboard::S)
+                    camera.moveForward(-10.0);
+                else if (event.key.code == sf::Keyboard::Q || event.key.code == sf::Keyboard::A)
+                    camera.moveRight(-10.0);
+                else if (event.key.code == sf::Keyboard::D)
+                    camera.moveRight(10.0);
+                else if (event.key.code == sf::Keyboard::Left)
+                    camera.rotate(0, -5.0);
+                else if (event.key.code == sf::Keyboard::Right)
+                    camera.rotate(0, 5.0);
+                else if (event.key.code == sf::Keyboard::Up)
+                    camera.rotate(-5.0, 0);
+                else if (event.key.code == sf::Keyboard::Down)
+                    camera.rotate(5.0, 0);
+                else continue;
+                redraw = true;
+            }
+        }
+        if (redraw) {
+            renderer.renderToBuffer(scene, camera, framebuffer, 1);
+            updateTexture(texture, framebuffer, width, height);
+            redraw = false;
+        }
+        window.clear();
+        window.draw(sprite);
+        window.display();
+    }
+}
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) {
-        std::cerr << USAGE;
-        return EXIT;
-    }
-    std::string sceneFile = argv[1];
-    if (sceneFile == "--help" || sceneFile == "-h") {
-        std::cout << USAGE;
-        return SUCCESS;
-    }
+    if (argc < 2) return 84;
+
     try {
         RayTracer::SceneParser parser;
         RayTracer::Scene scene;
         RayTracer::Camera camera;
-        parser.parse(sceneFile, scene, camera);
+        parser.parse(argv[1], scene, camera);
         RayTracer::Renderer renderer;
-        renderer.render(scene, camera, std::cout);
+        runInteractiveMode(scene, camera, renderer);
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT;
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 84;
     }
-    return SUCCESS;
+    return 0;
 }

@@ -35,10 +35,10 @@ public:
      * @param camera point de vue
      * @param out flux de sortie
      */
-    // void render(const Scene &scene, const Camera &camera,
-    //     std::ostream &out) const;
     void render(const Scene &scene, const Camera &camera, std::ostream &out, 
         int numThreads = std::thread::hardware_concurrency(), int antiAliasing = 2) const;
+    void renderToBuffer(const Scene &scene, const Camera &camera, 
+    std::vector<Color> &framebuffer, int antiAliasing = 1) const;
 
 private:
     /**
