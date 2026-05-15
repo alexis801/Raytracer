@@ -22,6 +22,7 @@ CORE_OBJ	=	$(CORE_SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 PLUGIN_NAMES	=	raytracer_sphere raytracer_plane \
 					raytracer_cone raytracer_cylinder \
+					raytracer_triangle \
 					raytracer_pointlight raytracer_directionallight
 PLUGINS		=	$(PLUGIN_NAMES:%=$(PLUGIN_DIR)/%.so)
 
@@ -33,6 +34,9 @@ deps:
 	@echo '#include <libconfig.h++>' | $(CXX) -E -x c++ - -o /dev/null 2>/dev/null \
 		|| (apt-get update && apt-get install -y libconfig++-dev) 2>/dev/null \
 		|| (dnf install -y libconfig-devel) 2>/dev/null
+	@echo '#include <SFML/Graphics.hpp>' | $(CXX) -E -x c++ - -o /dev/null 2>/dev/null \
+		|| (apt-get update && apt-get install -y libsfml-dev) 2>/dev/null \
+		|| (dnf install -y SFML-devel) 2>/dev/null
 
 $(NAME):	$(CORE_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
@@ -65,6 +69,11 @@ $(PLUGIN_DIR)/raytracer_directionallight.so: src/DirectionalLight.cpp src/types.
 	@mkdir -p $(PLUGIN_DIR)
 	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
 
+$(PLUGIN_DIR)/raytracer_triangle.so: src/Triangle.cpp src/types.cpp
+	@mkdir -p $(PLUGIN_DIR)
+	$(CXX) $(CXXFLAGS) -DPLUGIN_BUILD -shared -fPIC -o $@ $^ -lconfig++
+
+
 clean:
 	$(RM) -r $(OBJ_DIR)
 
@@ -81,7 +90,7 @@ TEST_SRC	=	$(shell find tests -name '*.cpp')
 CORE_NO_MAIN=	$(filter-out src/main.cpp, $(CORE_SRC))
 PLUGIN_SRC	=	src/Sphere.cpp src/Plane.cpp src/Cone.cpp \
 				src/Cylinder.cpp src/PointLight.cpp \
-				src/Triangle.cpp src/Texture.cpp \
+				src/Triangle.cpp \
 				src/DirectionalLight.cpp
 
 tests_run:	$(NAME)

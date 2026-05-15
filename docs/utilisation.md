@@ -76,6 +76,7 @@ Les formes sont les objets qui apparaissent dans l'image. Chaque forme a un type
 - `axis` : axe du cone
 - `x, y, z` : position de la pointe
 - `angle` : ouverture du cone en degres
+- `height` (optionnel) : hauteur du cone. Sans ce parametre, le cone est infini.
 
 **Cylindre** (un tube) :
 ```cfg
@@ -84,6 +85,19 @@ Les formes sont les objets qui apparaissent dans l'image. Chaque forme a un type
 ```
 - `x, y, z` : position du centre
 - `r` : taille du cylindre
+- `height` (optionnel) : hauteur du cylindre. Sans ce parametre, le cylindre est infini.
+
+**Triangle** (defini par 3 sommets) :
+```cfg
+{ type = "triangle";
+  v0x = 0.0; v0y = 0.0; v0z = 0.0;
+  v1x = 5.0; v1y = 0.0; v1z = 0.0;
+  v2x = 0.0; v2y = 5.0; v2z = 0.0;
+  color = { r = 255; g = 255; b = 0; }; }
+```
+- `v0x, v0y, v0z` : premier sommet
+- `v1x, v1y, v1z` : deuxieme sommet
+- `v2x, v2y, v2z` : troisieme sommet
 
 ### Les materiaux
 
@@ -92,12 +106,15 @@ On peut changer le comportement d'une forme face a la lumiere. Ces parametres so
 ```cfg
 { type = "sphere"; x = 0.0; y = 0.0; z = 5.0; r = 2.0;
   color = { r = 255; g = 255; b = 255; };
-  reflection = 0.1; transparency = 0.9; refraction = 1.5; }
+  reflection = 0.1; transparency = 0.9; refraction = 1.5;
+  specular = 0.8; shininess = 64.0; }
 ```
 
 - `reflection` : a quel point la forme reflete ce qui l'entoure. 0 = pas de reflet, 1 = miroir pur.
 - `transparency` : a quel point on voit a travers la forme. 0 = opaque, 1 = totalement transparent.
 - `refraction` : comment la lumiere se courbe en traversant la forme. 1.0 = air, 1.5 = verre, 2.4 = diamant.
+- `specular` : intensite des reflets brillants (modele de Phong). 0 = aucun reflet, 1 = tres brillant.
+- `shininess` : taille des reflets brillants. Une grande valeur (ex: 128) donne un petit point brillant tres net, une petite valeur (ex: 10) donne un reflet plus large et flou.
 
 ### Les groupes
 
@@ -127,18 +144,24 @@ lights:
     ambient = 0.3;
     diffuse = 0.7;
     point = (
-        { x = 100.0; y = -50.0; z = 200.0; }
+        { x = 100.0; y = -50.0; z = 200.0;
+          intensity = 1.0;
+          color = { r = 255; g = 200; b = 150; }; }
     );
     directional = (
-        { x = 0.0; y = -1.0; z = 0.0; }
+        { x = 0.0; y = -1.0; z = 0.0;
+          intensity = 0.8;
+          color = { r = 100; g = 100; b = 255; }; }
     );
 };
 ```
 
 - `ambient` : lumiere de base qui eclaire partout pareil. Entre 0 et 1.
 - `diffuse` : force de la lumiere sur les surfaces. Entre 0 et 1.
-- `point` : lumiere qui vient d'un point precis (comme une ampoule).
-- `directional` : lumiere qui vient d'une direction (comme le soleil).
+- `point` : lumiere qui vient d'un point precis (comme une ampoule). On peut en avoir plusieurs.
+- `directional` : lumiere qui vient d'une direction (comme le soleil). On peut en avoir plusieurs.
+- `intensity` (optionnel) : force de la lumiere. Defaut : 1.0.
+- `color` (optionnel) : couleur de la lumiere. Defaut : blanc.
 
 ## Exemple complet
 
@@ -189,6 +212,9 @@ Cette scene dessine une sphere miroir posee sur un plan gris, eclairee par une l
 - **Refraction** : quand la lumiere se courbe en passant a travers un objet transparent, comme du verre.
 - **Anti-aliasing** : technique pour lisser les bords des objets. Sans ca, les bords sont en escalier.
 - **Multithreading** : utiliser plusieurs coeurs du processeur en meme temps pour que le rendu soit plus rapide.
+- **Phong** : modele d'eclairage qui ajoute des reflets brillants sur les objets, comme sur une boule de billard.
+- **Specular** : intensite des reflets brillants.
+- **Shininess** : taille des reflets brillants. Plus c'est grand, plus le reflet est petit et net.
 - **Composite** : design pattern qui permet de regrouper des objets ensemble. Un groupe se comporte comme un seul objet.
 - **Factory** : design pattern qui permet de creer des objets a partir de leur nom (par exemple "sphere" cree une Sphere).
 - **Ombre portee** : quand un objet bloque la lumiere, il fait de l'ombre sur les objets derriere lui.
