@@ -30,7 +30,29 @@ Une fois que le reste marche, on ajoute le cylindre et le cone. On ajoute la rot
 
 ### Bonus
 
-On peut ajouter plein de trucs en plus pour avoir des points bonus. Des nouvelles formes comme le tore ou les triangles. Des materiaux comme la reflexion, la transparence ou les textures. Des optimisations comme le multithreading. Une interface graphique avec SFML. Chaque bonus rapporte entre 0.5 et 3 points.
+On peut ajouter plein de trucs en plus pour avoir des points bonus. Chaque bonus rapporte entre 0.5 et 3 points.
+
+#### Bonus deja faits
+
+- **Cylindre et cone avec une hauteur** (limited)
+- **Triangle** comme nouvelle forme
+- **Lumiere ponctuelle** (en plus de l'ambiante et la directionnelle)
+- **Plusieurs lumieres** ponctuelles ou directionnelles dans une meme scene
+- **Lumieres colorees** (au lieu de toujours blanches)
+- **Reflexion** : effet miroir sur les objets
+- **Transparence + refraction** : effet verre
+- **Modele de Phong** : reflets brillants sur les objets (specular + shininess)
+- **Anti-aliasing** par super-sampling
+- **Multithreading** pour accelerer le rendu
+- **Systeme de plugins** : chaque forme et lumiere est un fichier `.so` charge au demarrage
+
+#### Bonus envisages
+
+- D'autres formes (tore, fractales, ruban de Mobius, modeles 3D depuis fichier .obj)
+- Transformations (echelle, cisaillement, matrices)
+- Textures (image, damier, bruit de Perlin)
+- Optimisations (BVH, clustering reseau)
+- Interface graphique (afficher l'image en cours de rendu)
 
 ---
 
