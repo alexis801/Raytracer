@@ -26,7 +26,7 @@ PLUGIN_NAMES	=	raytracer_sphere raytracer_plane \
 					raytracer_pointlight raytracer_directionallight
 PLUGINS		=	$(PLUGIN_NAMES:%=$(PLUGIN_DIR)/%.so)
 
-LDFLAGS		=	-lconfig++ -ldl
+LDFLAGS		=	-lconfig++ -ldl -lsfml-graphics -lsfml-window -lsfml-system
 
 all:	deps $(NAME) $(PLUGINS)
 
@@ -34,6 +34,9 @@ deps:
 	@echo '#include <libconfig.h++>' | $(CXX) -E -x c++ - -o /dev/null 2>/dev/null \
 		|| (apt-get update && apt-get install -y libconfig++-dev) 2>/dev/null \
 		|| (dnf install -y libconfig-devel) 2>/dev/null
+	@echo '#include <SFML/Graphics.hpp>' | $(CXX) -E -x c++ - -o /dev/null 2>/dev/null \
+		|| (apt-get update && apt-get install -y libsfml-dev) 2>/dev/null \
+		|| (dnf install -y SFML-devel) 2>/dev/null
 
 $(NAME):	$(CORE_OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
