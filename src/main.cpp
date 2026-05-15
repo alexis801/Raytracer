@@ -43,15 +43,26 @@ void runInteractiveMode(RayTracer::Scene &scene, RayTracer::Camera &camera, RayT
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+            
             if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Add || event.key.code == sf::Keyboard::Equal) {
-                    camera.moveZ(10.0);
-                    redraw = true;
-                }
-                if (event.key.code == sf::Keyboard::Subtract || event.key.code == sf::Keyboard::Dash) {
-                    camera.moveZ(-10.0);
-                    redraw = true;
-                }
+                if (event.key.code == sf::Keyboard::Z || event.key.code == sf::Keyboard::W)
+                    camera.moveForward(10.0);
+                else if (event.key.code == sf::Keyboard::S)
+                    camera.moveForward(-10.0);
+                else if (event.key.code == sf::Keyboard::Q || event.key.code == sf::Keyboard::A)
+                    camera.moveRight(-10.0);
+                else if (event.key.code == sf::Keyboard::D)
+                    camera.moveRight(10.0);
+                else if (event.key.code == sf::Keyboard::Left)
+                    camera.rotate(0, -5.0);
+                else if (event.key.code == sf::Keyboard::Right)
+                    camera.rotate(0, 5.0);
+                else if (event.key.code == sf::Keyboard::Up)
+                    camera.rotate(-5.0, 0);
+                else if (event.key.code == sf::Keyboard::Down)
+                    camera.rotate(5.0, 0);
+                else continue;
+                redraw = true;
             }
         }
         if (redraw) {
