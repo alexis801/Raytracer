@@ -7,7 +7,7 @@
 
 NAME		=	raytracer
 
-CXX			=	g++
+CXX			=	clang++
 CXXFLAGS	=	-Wall -Wextra -std=c++20 -iquote ./include
 
 SRC_DIR		=	src
